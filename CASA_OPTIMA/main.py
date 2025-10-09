@@ -55,8 +55,26 @@ def main():
 
     # ====== 3️⃣ Interpretabilidad SHAP ======
     print("\n=== 4️⃣ Interpretabilidad SHAP ===")
+
     model_to_explain = fitted[MODEL_TO_EXPLAIN]
-    #_ = explain_model(model_to_explain, X, model_name=MODEL_TO_EXPLAIN, save_csv=False)
+
+    # Archivos esperados
+    summary_path = os.path.join(SAVE_DIR, f"{MODEL_TO_EXPLAIN}_shap_summary.png")
+    bar_path     = os.path.join(SAVE_DIR, f"{MODEL_TO_EXPLAIN}_shap_bar.png")
+    csv_path     = os.path.join(SAVE_DIR, f"{MODEL_TO_EXPLAIN}_shap_values.csv")
+
+    # Solo correr SHAP si no existen los outputs
+    if not (os.path.exists(summary_path) and os.path.exists(bar_path)):
+        print(f"⚙️ Generando interpretabilidad SHAP para {MODEL_TO_EXPLAIN}...")
+        _ = explain_model(
+            model_to_explain,
+            X,
+            model_name=MODEL_TO_EXPLAIN,
+            save_csv=True
+        )
+        print(f"✅ SHAP completado y guardado en '{SAVE_DIR}'")
+    else:
+        print(f"🟢 Resultados SHAP ya existen en '{SAVE_DIR}', se omite cálculo.")
 
     # ====== 4️⃣ Optimización con Gurobi ======
     print("\n=== 5️⃣ Optimizando la Casa Óptima ===")
