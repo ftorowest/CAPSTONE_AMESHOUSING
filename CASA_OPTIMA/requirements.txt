@@ -1,0 +1,28 @@
+# =============================================================
+# CASA ÓPTIMA - Requerimientos del proyecto Capstone AmesHousing
+# =============================================================
+
+# --- Núcleo científico y numérico ---
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.4.0
+joblib>=1.3.0
+matplotlib>=3.7.0
+seaborn>=0.12.2
+
+# --- Modelos y optimización ---
+xgboost>=2.0.0
+optuna>=3.6.0
+gurobipy>=11.0.0
+gurobi-ml>=1.4.0
+
+# --- Interpretabilidad ---
+shap>=0.44.0
+
+# --- Infraestructura / ejecución ---
+tqdm>=4.66.0
+python-dotenv>=1.0.0
+
+# --- (Opcional) Visualización interactiva o notebooks ---
+jupyterlab>=4.1.0
+notebook>=7.0.0
