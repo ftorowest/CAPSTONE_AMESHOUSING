@@ -86,12 +86,15 @@ def main():
         trained_stats=pd.DataFrame({
             "q05": X.quantile(0.05),
             "median": X.median(),
-            "q95": X.quantile(0.95)
+            "q95": X.quantile(0.95),
+            "max": X.max()
         }),
         baseline_idx=987,
         budget=200000
 )
     baseline_X = X.iloc[987]
+
+    print("Baseline features:\n")
     print(f"Baseline: {baseline_X.to_dict()}")
 
 # ====== Punto de entrada ======

@@ -113,11 +113,12 @@ def optimize_house(
     # ==========================================================
     # 📈 "Room to grow": máximos incrementos posibles por variable
     # ==========================================================
+    M_grande = 1e6  # gran número para límites
     room = {
         "First_Flr_SF":       400.0,  # pies² adicionales en primer piso
         "Second_Flr_SF":      400.0,  # pies² adicionales en segundo piso
         "Year_Built":           0,  
-        "Exter_Qual":           1.0,  # subir un nivel de calidad (TA→Gd→Ex)
+        "Exter_Qual":         M_grande,  # subir un nivel de calidad (TA→Gd→Ex)
         "Total_Bsmt_SF":      300.0,
         "Lot_Area":                 0,  
         "Overall_Cond":         1.0,  # subir un nivel de condición general
@@ -137,6 +138,7 @@ def optimize_house(
     }
 
     q95 = trained_stats["q95"]  # Percentil 95 usado para evitar valores irreales
+    maximo = trained_stats["max"]
 
     # ==========================================================
     # 3️⃣ Construcción de límites y costos efectivos
@@ -146,7 +148,7 @@ def optimize_house(
     for f in trained_feats:
         base = float(baseline.get(f, X[f].median()))
         ub_room = base + room.get(f, 0.0)     # límite según “room to grow”
-        ub_q95  = float(q95.get(f, base))     # límite según distribución
+        ub_q95  = float(maximo.get(f, base))     # límite según distribución
         lb = base                             # no se reduce el valor base
         ub = max(lb, min(ub_room, ub_q95))    # se toma el mínimo de ambos
         bounds[f] = (lb, ub)
@@ -185,12 +187,30 @@ def optimize_house(
     # 💰 Restricción de presupuesto total
     cost_expr = gp.quicksum(costs[c] * (x[c] - float(baseline[c])) for c in trained_feats)
     m.addConstr(cost_expr <= float(budget), name="Budget")
+    m.addConstr(cost_expr >= 0, name="NonNegativeCost")  # no gastar "negativo"
 
+    espacio_por_auto = 260 # pies² por auto adicional
+    M_sqr_feet = 1e6  # gran número para restricciones tipo "if"
     # 🧩 --- Espacio para restricciones adicionales ---
     # Ejemplos posibles:
     # m.addConstr(x["Full_Bath"] <= x["Bedroom_AbvGr"], name="Baths_limit")
     # m.addConstr(x["Garage_Cars"] <= 3, name="Garage_limit")
     # m.addConstr(x["Overall_Qual"] >= x["KitchenQual_ord"], name="Quality_relation")
+
+    # primer piso mas garage no puede superar el area del lote
+    m.addConstr(x["First_Flr_SF"] + x["Garage_Cars"] * espacio_por_auto <= x["Lot_Area"], name="LotArea_limit")
+
+    #segundo piso no puede superar el primer piso
+    m.addConstr(x["Second_Flr_SF"] <= x["First_Flr_SF"] , name="SecondFloor_limit")
+
+    # si la casa es de un solo piso, el segundo piso debe ser 0
+    m.addConstr(x["Second_Flr_SF"] <= M_sqr_feet * (1 - baseline["House_Style_One_Story"]), name="HouseStyle_1Story_limit")
+
+    # Total_Bsmt_SF es la suma de Bsmt_Unf_SF y BsmtFin_SF_1
+    m.addConstr(x["Total_Bsmt_SF"] == x["Bsmt_Unf_SF"] + baseline["BsmtFin_SF_1"] , name="TotalBsmtSF_def")
+
+
+
     # -------------------------------------------------
 
     # ==========================================================
