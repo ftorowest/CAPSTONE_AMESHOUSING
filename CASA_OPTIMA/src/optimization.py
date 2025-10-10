@@ -90,23 +90,24 @@ def optimize_house(
         "First_Flr_SF":        200,   # costo por pie² en el primer piso
         "Second_Flr_SF":       220,   # segundo piso es más caro estructuralmente
         "Year_Built":            0,   # costo por "año equivalente" de antigüedad (renovaciones estructurales)
-        "Exter_Qual":          7000,  # mejorar calidad exterior
-        "Total_Bsmt_SF":        80,   # costo por pie² adicional en sótano
+        "Exter_Qual":          70,  # mejorar calidad exterior
+        "Total_Bsmt_SF":        0,   # costo por pie² adicional en sótano
         "Lot_Area":             0,   # costo por pie² de terreno
         "Overall_Cond":       12000,  # mejorar condición general
         "Garage_Cars":        17000,  # agregar espacio de estacionamiento
         "Kitchen_Qual":        8000,  # mejorar calidad de cocina
         "Fireplaces":          6000,  # agregar chimenea
-        "Year_Remod_Add":     0,   # costo asociado a remodelación reciente
+        "Year_Remod_Add":          0,   # costo asociado a remodelación reciente
         "Sale_Condition_Normal": 0,   # categórica (no accionable directamente)
         "Longitude":              0,  # ubicación fija (no modificable)
-        "BsmtFin_Type_1":      4000,  # mejorar tipo de acabado en sótano
-        "Bsmt_Unf_SF":          80,   # terminar superficie no acabada
         "Full_Bath":          25000,  # agregar baño completo
         "Bsmt_Qual":           5000,  # mejorar calidad del sótano
         "Latitude":               0,  # ubicación fija (no modificable)
         "Bsmt_Exposure":       4000,  # agregar ventanas o acceso al exterior
         "TotRms_AbvGrd":      10000,  # costo por agregar una habitación
+        "Year_Remod_Add":        0,  # remodelar 
+        "Garage_Cond":         3000,  # mejorar condición del garage
+        "House_Style_One_Story": 0,  # categórica (no accionable directamente)
     }
 
 
@@ -121,38 +122,49 @@ def optimize_house(
         "Exter_Qual":         M_grande,  # subir un nivel de calidad (TA→Gd→Ex)
         "Total_Bsmt_SF":      300.0,
         "Lot_Area":                 0,  
-        "Overall_Cond":         1.0,  # subir un nivel de condición general
-        "Garage_Cars":          1.0,
-        "Kitchen_Qual":         1.0,  # subir un nivel (TA→Gd→Ex)
-        "Fireplaces":           1.0,
-        "Year_Remod_Add":       0 ,  # remodelar o actualizar hasta 3 "años equivalentes"
+        "Overall_Cond":         M_grande,  # subir un nivel de condición general
+        "Garage_Cars":          M_grande,
+        "Kitchen_Qual":         M_grande,  # subir un nivel (TA→Gd→Ex)
+        "Fireplaces":           M_grande,
+        "Year_Remod_Add":       M_grande ,  # remodelar o actualizar hasta 3 "años equivalentes"
         "Sale_Condition_Normal":0.0,  # no se modifica
         "Longitude":            0.0,  # ubicación fija
-        "BsmtFin_Type_1":       1.0,  # subir un nivel de terminación
-        "Bsmt_Unf_SF":        200.0,  # pies² que se pueden terminar
-        "Full_Bath":            1.0,
-        "Bsmt_Qual":            1.0,
+        "Full_Bath":            M_grande,
+        "Bsmt_Qual":            M_grande,
+        "Sale_Condition_Normal": 0.0,  # no se modifica
+        "Longitude":             0.0,  # ubicación fija
         "Latitude":             0.0,
-        "Bsmt_Exposure":        1.0,
-        "TotRms_AbvGrd":        1.0,  # agregar una habitación adicional
+        "Garage_Cond":          M_grande,  # mejorar condición del garage
+        "Bsmt_Exposure":        M_grande,
+        "TotRms_AbvGrd":        M_grande,  # agregar una habitación adicional
+        "House_Style_One_Story": 0.0,  # no se modifica
     }
 
     q95 = trained_stats["q95"]  # Percentil 95 usado para evitar valores irreales
     maximo = trained_stats["max"]
-
+    M_prueba = 1e7  # gran número para pruebas
     # ==========================================================
     # 3️⃣ Construcción de límites y costos efectivos
     # ==========================================================
     bounds, costs = {}, {}
+    ignore_q95 = {"Year_Built", "Year_Remod_Add", "Longitude", "Latitude"}
 
     for f in trained_feats:
         base = float(baseline.get(f, X[f].median()))
-        ub_room = base + room.get(f, 0.0)     # límite según “room to grow”
-        ub_q95  = float(maximo.get(f, base))     # límite según distribución
-        lb = base                             # no se reduce el valor base
-        ub = max(lb, min(ub_room, ub_q95))    # se toma el mínimo de ambos
+        ub_room = base + room.get(f, 0.0)
+        ub_q95 = float(maximo.get(f, base))
+
+        lb = base
+
+        if f in ignore_q95:
+            # Usa solo room (o base si room=0)
+            ub = max(lb, ub_room)
+        else:
+            # Usa el menor entre room y q95
+            ub = max(lb, min(ub_room, ub_q95))
+
         bounds[f] = (lb, ub)
-        costs[f]  = float(default_costs.get(f, 0.0))
+        costs[f] = float(default_costs.get(f, 0.0))
 
     # ==========================================================
     # 4️⃣ Creación del modelo de optimización Gurobi
@@ -191,6 +203,7 @@ def optimize_house(
 
     espacio_por_auto = 260 # pies² por auto adicional
     M_sqr_feet = 1e6  # gran número para restricciones tipo "if"
+
     # 🧩 --- Espacio para restricciones adicionales ---
     # Ejemplos posibles:
     # m.addConstr(x["Full_Bath"] <= x["Bedroom_AbvGr"], name="Baths_limit")
@@ -198,7 +211,7 @@ def optimize_house(
     # m.addConstr(x["Overall_Qual"] >= x["KitchenQual_ord"], name="Quality_relation")
 
     # primer piso mas garage no puede superar el area del lote
-    m.addConstr(x["First_Flr_SF"] + x["Garage_Cars"] * espacio_por_auto <= x["Lot_Area"], name="LotArea_limit")
+    m.addConstr(x["First_Flr_SF"] + x["Garage_Cars"] * espacio_por_auto + x["Open_Porch_SF"] + x["Wood_Deck_SF"] <= x["Lot_Area"], name="LotArea_limit")
 
     #segundo piso no puede superar el primer piso
     m.addConstr(x["Second_Flr_SF"] <= x["First_Flr_SF"] , name="SecondFloor_limit")
@@ -206,8 +219,28 @@ def optimize_house(
     # si la casa es de un solo piso, el segundo piso debe ser 0
     m.addConstr(x["Second_Flr_SF"] <= M_sqr_feet * (1 - baseline["House_Style_One_Story"]), name="HouseStyle_1Story_limit")
 
-    # Total_Bsmt_SF es la suma de Bsmt_Unf_SF y BsmtFin_SF_1
-    m.addConstr(x["Total_Bsmt_SF"] == x["Bsmt_Unf_SF"] + baseline["BsmtFin_SF_1"] , name="TotalBsmtSF_def")
+    # El garage es mas chico que el primer piso
+    m.addConstr(x["Garage_Cars"] * espacio_por_auto <= x["First_Flr_SF"], name="Garage_size_limit")
+
+    # El tamaño del sótano no puede superar el primer piso
+    m.addConstr(x["Total_Bsmt_SF"] <= x["First_Flr_SF"], name="Basement_size_limit")
+
+    # El numero de baños completos no puede superar el número de habitaciones
+    m.addConstr(x["Full_Bath"] + x["Half_Bath"] <= x["TotRms_AbvGrd"] + 1 , name="Baths_limit")
+
+    #no pueden haber mas baños completos que habitaciones
+    m.addConstr(x["Full_Bath"] <= x["TotRms_AbvGrd"] , name="FullBath_limit")
+
+    #El numero de baños half bath no puede ser mayor a baños completos
+    m.addConstr(x["Half_Bath"] <= x["Full_Bath"] , name="HalfBath_limit")
+
+    # El numero de fireplaces no puede superar el número de habitaciones
+    m.addConstr(x["Fireplaces"] <= x["Full_Bath"] + x["Half_Bath"], name="Fireplaces_limit")
+
+    # EL año de remodelación es igual a el año actual
+    m.addConstr(x["Year_Remod_Add"] == 2025 , name="Remodeling_year_limit")
+
+
 
 
 
@@ -272,10 +305,21 @@ def optimize_house(
         print(f"Ganancia neta  : {profit:,.0f} | ROI: {roi:,.2f}\n")
 
         print("Cambios sugeridos:")
+        print("-" * 70)
+        print(f"{'Variable':25s} {'Δ Valor':>10s} {'Costo unitario':>15s} {'Costo total':>15s}")
+        print("-" * 70)
+
+        cost_breakdown = {}
         for c in trained_feats:
             delta = deltas[c]
-            if abs(delta) > 1e-6:
-                print(f" - {c:20s}: {x[c].X:10.3f}  (Δ={delta:+.3f})")
+            unit_cost = costs.get(c, 0.0)
+            total_cost = delta * unit_cost
+            if abs(delta) > 1e-6 and unit_cost > 0:
+                cost_breakdown[c] = total_cost
+                print(f"{c:25s} {delta:+10.3f} {unit_cost:15,.0f} {total_cost:15,.0f}")
+
+        print("-" * 70)
+        print(f"{'TOTAL':25s} {'':>10s} {'':>15s} {sum(cost_breakdown.values()):15,.0f}\n")
 
         return {
             "price_before": price_before,
@@ -283,9 +327,11 @@ def optimize_house(
             "spent": spent,
             "profit": profit,
             "roi": roi,
-            "changes": deltas
+            "changes": deltas,
+            "cost_breakdown": cost_breakdown  # <- 🔹 diccionario con desglose por mejora
         }
 
     else:
         print("❌ No se encontró solución factible.")
         return None
+

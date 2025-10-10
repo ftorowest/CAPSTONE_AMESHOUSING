@@ -89,13 +89,15 @@ def main():
             "q95": X.quantile(0.95),
             "max": X.max()
         }),
-        baseline_idx=987,
+        baseline_idx=1,
         budget=200000
 )
-    baseline_X = X.iloc[987]
+    baseline_X = X.iloc[1]
 
     print("Baseline features:\n")
-    print(f"Baseline: {baseline_X.to_dict()}")
+    #ordenamos alfabeticamente para mejor lectura
+    print(f"Baseline: {baseline_X.sort_index().to_dict()}")
+
 
 # ====== Punto de entrada ======
 if __name__ == "__main__":

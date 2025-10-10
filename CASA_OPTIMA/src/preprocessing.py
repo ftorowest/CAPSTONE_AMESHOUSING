@@ -80,8 +80,41 @@ def load_and_prepare(path_csv: str):
         "Garage_Type_More_Than_Two_Types", "Sale_Type_VWD", "Garage_Type_No_Garage"
     ]
 
+
+    features = [
+    "First_Flr_SF",
+    "Second_Flr_SF",
+    "Year_Built",
+    "Total_Bsmt_SF",
+    "Exter_Qual",
+    "Kitchen_Qual",
+    "Overall_Cond",
+    "Lot_Area",
+    "Garage_Cars",
+    "Fireplaces",
+    "Sale_Condition_Normal",
+    "Longitude",
+    "Bsmt_Qual",
+    "Year_Remod_Add",
+    "Full_Bath",
+    "TotRms_AbvGrd",
+    "Garage_Finish",
+    "Bsmt_Exposure",
+    "Garage_Cond",
+    "Latitude",
+    "House_Style_One_Story",
+    "Half_Bath",
+    "Heating_QC",
+    "Open_Porch_SF",
+    "Bsmt_Full_Bath",
+    "Sale_Type_New",
+    "Neighborhood_Edwards",
+    "Wood_Deck_SF"
+]   
+    X = df[features].copy()
+
     # Eliminamos las columnas irrelevantes si existen
-    X = df.drop(columns=[c for c in drop_cols if c in df.columns], errors="ignore")
+    #X = df.drop(columns=[c for c in drop_cols if c in df.columns], errors="ignore")
 
     # Rellenamos valores faltantes
     medians = X.median(numeric_only=True)
