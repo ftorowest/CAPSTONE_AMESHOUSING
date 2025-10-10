@@ -75,7 +75,7 @@ def main():
         print(f"✅ SHAP completado y guardado en '{SAVE_DIR}'")
     else:
         print(f"🟢 Resultados SHAP ya existen en '{SAVE_DIR}', se omite cálculo.")
-
+    
     # ====== 4️⃣ Optimización con Gurobi ======
     print("\n=== 5️⃣ Optimizando la Casa Óptima ===")
     result = optimize_house(

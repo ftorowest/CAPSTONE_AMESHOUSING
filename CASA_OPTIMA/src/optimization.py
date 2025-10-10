@@ -71,6 +71,9 @@ def optimize_house(
     idx = baseline_idx if 0 <= baseline_idx < n else 0
     baseline = X.iloc[idx].astype(float)
 
+
+
+
     # Predicciones iniciales (en log y en valor real)
     pred_log = float(model.predict(baseline.to_frame().T)[0])
     price_pred = float(np.expm1(pred_log))        # Valor estimado (modelo)
@@ -108,6 +111,10 @@ def optimize_house(
         "Year_Remod_Add":        0,  # remodelar 
         "Garage_Cond":         3000,  # mejorar condición del garage
         "House_Style_One_Story": 0,  # categórica (no accionable directamente)
+        "Half_Bath":         15000,  # agregar medio baño
+        "Kitchen_AbvGr":        45000,  # categórica (no accionable directamente)
+        "Heating_QC":          4000,  # mejorar calidad del sistema de calefacción
+        "Pool_Area":           8000,  # agregar piscina
     }
 
 
@@ -138,16 +145,18 @@ def optimize_house(
         "Bsmt_Exposure":        M_grande,
         "TotRms_AbvGrd":        M_grande,  # agregar una habitación adicional
         "House_Style_One_Story": 0.0,  # no se modifica
+        "Half_Bath":         M_grande,  # agregar medio baño
+        "Kitchen_AbvGr":        M_grande,  # categórica (no accionable directamente)
+        "Heating_QC":          M_grande,  # mejorar calidad del sistema de calefacción
+        "Pool_Area":            M_grande,  # no se modifica
     }
 
-    q95 = trained_stats["q95"]  # Percentil 95 usado para evitar valores irreales
     maximo = trained_stats["max"]
-    M_prueba = 1e7  # gran número para pruebas
     # ==========================================================
     # 3️⃣ Construcción de límites y costos efectivos
     # ==========================================================
     bounds, costs = {}, {}
-    ignore_q95 = {"Year_Built", "Year_Remod_Add", "Longitude", "Latitude"}
+    ignore_max = {"Year_Built", "Year_Remod_Add", "Longitude", "Latitude"}
 
     for f in trained_feats:
         base = float(baseline.get(f, X[f].median()))
@@ -156,7 +165,7 @@ def optimize_house(
 
         lb = base
 
-        if f in ignore_q95:
+        if f in ignore_max:
             # Usa solo room (o base si room=0)
             ub = max(lb, ub_room)
         else:
@@ -211,7 +220,7 @@ def optimize_house(
     # m.addConstr(x["Overall_Qual"] >= x["KitchenQual_ord"], name="Quality_relation")
 
     # primer piso mas garage no puede superar el area del lote
-    m.addConstr(x["First_Flr_SF"] + x["Garage_Cars"] * espacio_por_auto + x["Open_Porch_SF"] + x["Wood_Deck_SF"] <= x["Lot_Area"], name="LotArea_limit")
+    m.addConstr(x["First_Flr_SF"] + x["Garage_Cars"] * espacio_por_auto + x["Open_Porch_SF"] + x["Wood_Deck_SF"] + x["Pool_Area"] <= x["Lot_Area"], name="LotArea_limit")
 
     #segundo piso no puede superar el primer piso
     m.addConstr(x["Second_Flr_SF"] <= x["First_Flr_SF"] , name="SecondFloor_limit")

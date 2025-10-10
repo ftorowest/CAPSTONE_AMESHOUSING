@@ -41,12 +41,12 @@ def load_and_prepare(path_csv: str):
         "Sale_Price", "Sale_Price_Log", "Overall_Qual",
 
         # Variables irrelevantes (importancia ≈ 0)
-        "Neighborhood_Sawyer_West","Kitchen_AbvGr","Exterior_1st_VinylSd","Mas_Vnr_Type_BrkFace",
+        "Neighborhood_Sawyer_West","Exterior_1st_VinylSd","Mas_Vnr_Type_BrkFace",
         "MS_SubClass_Two_Story_1945_and_Older","Condition_1_PosN","Neighborhood_Northridge",
         "Exterior_2nd_Stucco","Exterior_2nd_MetalSd","Sale_Condition_Alloca","Enclosed_Porch",
         "Neighborhood_Mitchell","Mas_Vnr_Type_None","Bsmt_Cond","Land_Contour_Low",
         "Sale_Condition_AdjLand","Land_Contour_HLS","Lot_Frontage","Electrical_SBrkr",
-        "Exterior_2nd_HdBoard","Pool_Area","Bldg_Type_TwoFmCon","Roof_Matl_CompShg",
+        "Exterior_2nd_HdBoard","Bldg_Type_TwoFmCon","Roof_Matl_CompShg",
         "Exterior_2nd_Plywood","MS_Zoning_Residential_High_Density","Exterior_1st_Plywood",
         "Condition_1_PosA","Lot_Shape_Slightly_Irregular","Condition_1_RRAe",
         "MS_SubClass_Two_and_Half_Story_All_Ages","Neighborhood_Stone_Brook",
@@ -109,7 +109,9 @@ def load_and_prepare(path_csv: str):
     "Bsmt_Full_Bath",
     "Sale_Type_New",
     "Neighborhood_Edwards",
-    "Wood_Deck_SF"
+    "Wood_Deck_SF",
+    "Kitchen_AbvGr",
+    "Pool_Area"
 ]   
     X = df[features].copy()
 
