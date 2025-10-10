@@ -38,7 +38,7 @@ def explain_model(model, X, model_name="XGB_Optuna", save_csv=False):
     plt.close()
 
     # --- Gráfico de barras (importancia promedio) ---
-    shap.summary_plot(shap_values, X, plot_type="bar", show=False)
+    shap.summary_plot(shap_values, X, plot_type="bar", show=False, max_display=len(X.columns))  # 👈 muestra todas las variables
     plt.title(f"Importancia promedio ({model_name})")
     plt.tight_layout()
     plt.savefig(f"models/{model_name}_shap_bar.png", dpi=300)

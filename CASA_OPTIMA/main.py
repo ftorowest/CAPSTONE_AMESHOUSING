@@ -89,10 +89,10 @@ def main():
             "q95": X.quantile(0.95)
         }),
         baseline_idx=987,
-        budget=200000,
-        objective_mode="profit"
+        budget=200000
 )
-
+    baseline_X = X.iloc[987]
+    print(f"Baseline: {baseline_X.to_dict()}")
 
 # ====== Punto de entrada ======
 if __name__ == "__main__":
