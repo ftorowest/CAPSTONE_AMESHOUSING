@@ -1,32 +1,12 @@
-"""
-preprocessing.py
-----------------
-Carga y prepara el dataset ames_dum.csv para modelar.
-Elimina variables irrelevantes, rellena nulos y devuelve
-X (features) e y (target logarítmico).
-"""
-
 import pandas as pd
 import numpy as np
 
 
+
+#Carga el dataset y devuelve X, y listos para entrenamiento.
+#Aplica limpieza de columnas según importancia (ya definida manualmente).
+
 def load_and_prepare(path_csv: str):
-    """
-    Carga el dataset y devuelve X, y listos para entrenamiento.
-    Aplica limpieza de columnas según importancia (ya definida manualmente).
-
-    Parámetros
-    ----------
-    path_csv : str
-        Ruta al archivo CSV ames_dum.csv
-
-    Retorna
-    -------
-    X : pd.DataFrame
-        Variables predictoras filtradas y sin nulos.
-    y : pd.Series
-        Variable objetivo (Sale_Price_Log)
-    """
     df = pd.read_csv(path_csv)
     df.columns = df.columns.str.strip()
 
@@ -36,10 +16,9 @@ def load_and_prepare(path_csv: str):
     # Variable objetivo
     y = df["Sale_Price_Log"].copy()
 
-    # ---- Variables a eliminar ----
+    # Variables a eliminar 
     drop_cols = [
         "Sale_Price", "Sale_Price_Log", "Overall_Qual",
-
         # Variables irrelevantes (importancia ≈ 0)
         "Neighborhood_Sawyer_West","Exterior_1st_VinylSd","Mas_Vnr_Type_BrkFace",
         "MS_SubClass_Two_Story_1945_and_Older","Condition_1_PosN","Neighborhood_Northridge",
@@ -114,14 +93,10 @@ def load_and_prepare(path_csv: str):
     "Pool_Area"
 ]   
     X = df[features].copy()
-
-    # Eliminamos las columnas irrelevantes si existen
-    #X = df.drop(columns=[c for c in drop_cols if c in df.columns], errors="ignore")
-
     # Rellenamos valores faltantes
     medians = X.median(numeric_only=True)
     X = X.fillna(medians)
 
-    print(f"✅ Dataset procesado: {X.shape[0]} filas, {X.shape[1]} features.")
+    print(f" Dataset procesado: {X.shape[0]} filas, {X.shape[1]} features.")
     return X, y
 

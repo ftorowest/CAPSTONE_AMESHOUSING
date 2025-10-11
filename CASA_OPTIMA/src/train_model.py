@@ -116,6 +116,6 @@ def train_models(X, y, save_dir="models"):
     print(results_df)
 
     best_name = results_df.iloc[0]["Model"]
-    print(f"\n✅ Mejor modelo por RMSE: {best_name}")
+    print(f"\n Mejor modelo por RMSE: {best_name}")
 
     return fitted, results_df
