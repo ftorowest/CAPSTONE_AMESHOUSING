@@ -89,7 +89,8 @@ def load_and_prepare(path_csv: str):
     "Bedroom_AbvGr",
     "Garage_Qual",
     "Kitchen_AbvGr",
-    "Pool_Area"
+    "Pool_Area",
+    "Overall_Cond"
 ]   
     
     X = df[features].copy()

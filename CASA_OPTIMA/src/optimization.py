@@ -177,6 +177,12 @@ def optimize_house(
             x[c] = m.addVar(lb=float(lb), ub=float(ub), vtype=GRB.CONTINUOUS, name=c)
     
 
+    #Parametros
+    espacio_por_auto = 260 # pies² por auto adicional
+    M_sqr_feet = 1e6  # gran número para restricciones tipo "if"
+    cocina_promedio = 0 #BUSCAR INFO
+    baño_promedio = 0 #BUSCAR INFO
+    habitacion_promedio = 0 #BUSCAR INFO
 
     # Restricciones básicas
 

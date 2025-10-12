@@ -13,8 +13,6 @@ import matplotlib.pyplot as plt
 
 def explain_model(model, X, model_name="XGB_Optuna", save_csv=False):
     """
-    Calcula e interpreta los valores SHAP para el modelo elegido.
-
     Parámetros
     ----------
     model : modelo entrenado (XGBRegressor o Pipeline)
@@ -26,7 +24,7 @@ def explain_model(model, X, model_name="XGB_Optuna", save_csv=False):
         Si True, guarda los valores SHAP en 'models/shap_values.csv'.
     """
 
-    print(f"\n🔍 Calculando valores SHAP para {model_name}...")
+    print(f"\nCalculando valores SHAP para {model_name}...")
     explainer = shap.Explainer(model, X)
     shap_values = explainer(X)
 
