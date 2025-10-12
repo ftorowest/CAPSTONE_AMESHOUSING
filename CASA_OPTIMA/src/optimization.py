@@ -53,30 +53,36 @@ def optimize_house(
     # Costo unitario aproximado de aumentar cada variable (en USD)
     # Variables no accionables se le impone un costo 0
     default_costs = {
-        "First_Flr_SF":        200,   # costo por pie² en el primer piso
-        "Second_Flr_SF":       220,   # segundo piso es más caro estructuralmente
+        "First_Flr_SF":        151,   # costo por pie² en el primer piso
+        "Second_Flr_SF":       203,   # segundo piso es más caro estructuralmente
         "Year_Built":            0,   # costo por "año equivalente" de antigüedad 
         "Exter_Qual":          70,  # mejorar calidad exterior
-        "Total_Bsmt_SF":        0,   # costo por pie² adicional en sótano
+        "Total_Bsmt_SF":        100,   # costo por pie² adicional en sótano
         "Lot_Area":             0,   # costo por pie² de terreno
-        "Overall_Cond":       12000,  # mejorar condición general
-        "Garage_Cars":        17000,  # agregar espacio de estacionamiento
+        "Garage_Cars":        19463,  # agregar espacio de estacionamiento
         "Garage_Cond":         3000,  # mejorar condición del garage 
+        "Garage_Finish":       3000,
+        "Garage_Qual":         6000,
         "Kitchen_Qual":        8000,  # mejorar calidad de cocina (por nivel)
         "Kitchen_AbvGr":        45000,  # construir cocina nueva
-        "Fireplaces":          6000,  # agregar chimenea
+        "Fireplaces":          6942,  # agregar chimenea
         "Year_Remod_Add":          0,   # costo asociado a remodelación reciente
         "Sale_Condition_Normal": 0,   # categórica (no accionable directamente)
+        "Sale_Type_New":         0,
         "Longitude":              0,  # ubicación fija 
         "Latitude":               0,  # ubicación fija 
-        "Full_Bath":          25000,  # agregar baño completo
-        "Half_Bath":         15000,  # agregar medio baño (sin ducha)
+        "Full_Bath":          10386,  # agregar baño completo
+        "Half_Bath":         6150,  # agregar medio baño (sin ducha)
         "Bsmt_Qual":           5000,  # mejorar calidad del sótano (por nivel)
         "Bsmt_Exposure":       4000,  # agregar ventanas o acceso al exterior del sotano
         "TotRms_AbvGrd":      10000,  # costo por agregar una habitación
+        "Bedroom_AbvGr":       0,
         "House_Style_One_Story": 0,  # categórica (no accionable directamente)
         "Heating_QC":          4000,  # mejorar calidad del sistema de calefacción (por nivel)
         "Pool_Area":           8000,  # agregar piscina
+        "Bsmt_Full_Bath":      6000,
+        "Open_Porch_SF":       200,
+        "Wood_Deck_SF":           200
     }
  
 
@@ -89,25 +95,30 @@ def optimize_house(
         "Exter_Qual":         M_grande,  # subir un nivel de calidad (TA→Gd→Ex)
         "Total_Bsmt_SF":      300,
         "Lot_Area":                 0,  
-        "Overall_Cond":         M_grande,  # subir un nivel de condición general
         "Garage_Cars":          M_grande,
         "Garage_Cond":          M_grande,  # mejorar condición del garage
         "Kitchen_Qual":         M_grande,  # subir un nivel (TA→Gd→Ex)
         "Kitchen_AbvGr":        M_grande,  # categórica (no accionable directamente)
         "Fireplaces":           M_grande,
-        "Year_Remod_Add":       M_grande ,  # remodelar o actualizar hasta 3 "años equivalentes"
+        "Year_Remod_Add":       M_grande,  # remodelar o actualizar hasta 3 "años equivalentes"
         "Sale_Condition_Normal":0,  # no se modifica
         "Longitude":            0,  # ubicación fija
-        "Longitude":            0,  # ubicación fija
+        "Latitude":            0,  # ubicación fija
         "Full_Bath":            M_grande,
         "Half_Bath":         M_grande,  # agregar medio baño
         "Bsmt_Qual":            M_grande,
         "Bsmt_Exposure":        M_grande,
-        "Sale_Condition_Normal": 0,  # no se modifica
+        "Sale_Type_New": 0,  # no se modifica
         "TotRms_AbvGrd":        M_grande,  # agregar una habitación adicional
         "House_Style_One_Story": 0,  # no se modifica
         "Heating_QC":          M_grande,  # mejorar calidad del sistema de calefacción
-        "Pool_Area":            M_grande,  # no se modifica
+        "Pool_Area":            M_grande, 
+        "Garage_Finish":        M_grande,
+        "Wood_Deck_SF":         M_grande,
+        "Open_Porch_SF":        M_grande,
+        "Bsmt_Full_Bath":       M_grande,
+        "Bedroom_AbvGr":        M_grande,
+        "Garage_Qual":          M_grande
     }
 
 
@@ -171,8 +182,8 @@ def optimize_house(
 
     # 1. Restricción de presupuesto total
     cost = gp.quicksum(costs[c] * (x[c] - float(baseline[c])) for c in trained_feats)
-    m.addConstr(cost <= float(budget), name= "Presupuesto")
-    m.addConstr(cost >= 0, name= "Costo No Negativo")  # no gastar "negativo"
+    m.addConstr(cost <= float(budget), name= "Budget")
+    m.addConstr(cost >= 0, name= "Non_negative_cost")  # no gastar "negativo"
 
     espacio_por_auto = 260 # pies² por auto adicional
     M_sqr_feet = 1e6  # gran número para restricciones tipo "if"
@@ -219,8 +230,16 @@ def optimize_house(
         m.addConstr( x[v] - baseline[v] >= min_d * ampliaciones[v], name=f"{v}_min_delta")
 
         # Si no se amplía, el cambio debe ser 0
-        m.addConstr(x[v] - baseline[v] <= M_grande * ampliaciones[v], name=f"A_{v}_activacion")
+        m.addConstr(x[v] - baseline[v] <= M_grande * ampliaciones[v], name=f"A_{v}_activation")
 
+    # 13. Debe haber al menos una cocina
+    m.addConstr( 1 <= x["Kitchen_AbvGr"] , name="kitchen_min")
+
+    # 14. Debe haber al menos una habitacion
+    m.addConstr( 1 <= x["TotRms_AbvGrd"] , name="rooms_min")
+
+    # 15. Debe haber al menos un baño
+    m.addConstr( 1 <= x["Full_Bath"] , name="bath_min")
 
 
     # Conexión con el modelo predictivo (Gurobi + ML)

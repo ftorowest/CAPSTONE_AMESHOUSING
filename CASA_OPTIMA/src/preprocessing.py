@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 
 
-
 #Carga el dataset y devuelve X, y listos para entrenamiento.
 #Aplica limpieza de columnas según importancia (ya definida manualmente).
 
@@ -64,34 +63,35 @@ def load_and_prepare(path_csv: str):
     "First_Flr_SF",
     "Second_Flr_SF",
     "Year_Built",
-    "Total_Bsmt_SF",
     "Exter_Qual",
-    "Kitchen_Qual",
-    "Overall_Cond",
+    "Total_Bsmt_SF",
     "Lot_Area",
     "Garage_Cars",
+    "Kitchen_Qual",
     "Fireplaces",
+    "Year_Remod_Add",
     "Sale_Condition_Normal",
     "Longitude",
-    "Bsmt_Qual",
-    "Year_Remod_Add",
     "Full_Bath",
-    "TotRms_AbvGrd",
-    "Garage_Finish",
-    "Bsmt_Exposure",
-    "Garage_Cond",
+    "Bsmt_Qual",
     "Latitude",
-    "House_Style_One_Story",
+    "Bsmt_Exposure",
+    "TotRms_AbvGrd",
     "Half_Bath",
     "Heating_QC",
+    "Garage_Finish",
+    "Garage_Cond",
+    "Wood_Deck_SF",
     "Open_Porch_SF",
     "Bsmt_Full_Bath",
+    "House_Style_One_Story",
     "Sale_Type_New",
-    "Neighborhood_Edwards",
-    "Wood_Deck_SF",
+    "Bedroom_AbvGr",
+    "Garage_Qual",
     "Kitchen_AbvGr",
     "Pool_Area"
 ]   
+    
     X = df[features].copy()
     # Rellenamos valores faltantes
     medians = X.median(numeric_only=True)

@@ -1,10 +1,3 @@
-"""
-train_model.py
----------------
-Entrena modelos de regresión lineal y XGBoost (Optuna)
-para el proyecto Casa Óptima. Evalúa con RMSE, MAE y R2.
-"""
-
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import KFold
@@ -18,15 +11,15 @@ import optuna
 from joblib import dump
 
 
-# ===== Función de RMSE compatible =====
+# Función de RMSE compatible 
 def rmse_compat(y_true, y_pred):
-    """Devuelve RMSE compatible con distintas versiones de sklearn."""
+    # Devuelve RMSE compatible con distintas versiones de sklearn.
     return np.sqrt(mean_squared_error(y_true, y_pred))
 
 
-# ===== Cross-validation para cualquier modelo =====
+# Cross-validation para cualquier modelo 
 def cv_eval(estimator, X, y_log, folds=5, seed=42):
-    """Evalúa un modelo con validación cruzada y devuelve métricas promedio."""
+    # Evalúa un modelo con validación cruzada y devuelve métricas promedio.
     kf = KFold(n_splits=folds, shuffle=True, random_state=seed)
     y_true, y_pred = [], []
     for tr, te in kf.split(X):
@@ -46,9 +39,9 @@ def cv_eval(estimator, X, y_log, folds=5, seed=42):
     }
 
 
-# ===== Optuna para XGBoost =====
+#Optuna para XGBoost 
 def tune_xgb_with_optuna(X, y, n_trials=50):
-    """Busca los mejores hiperparámetros de XGBRegressor con Optuna."""
+    # Busca los mejores hiperparámetros de XGBRegressor con Optuna.
     def objective(trial):
         params = {
             "objective": "reg:squarederror",
@@ -72,23 +65,23 @@ def tune_xgb_with_optuna(X, y, n_trials=50):
     study = optuna.create_study(direction="minimize")
     study.optimize(objective, n_trials=n_trials, show_progress_bar=True)
 
-    print("\n==== Mejores hiperparámetros Optuna ====")
+    print("\nMejores hiperparámetros Optuna")
     print(study.best_params)
     print(f"RMSE CV óptimo: {study.best_value:.4f}")
 
     return study.best_params
 
 
-# ===== Entrenar ambos modelos =====
+# Entrenar ambos modelos
 def train_models(X, y, save_dir="models"):
-    """Entrena Linear y XGB (Optuna) y guarda los modelos."""
+    #Entrena Linear y XGB (Optuna) y guarda los modelos.
     from pathlib import Path
     Path(save_dir).mkdir(exist_ok=True)
 
     results = []
     fitted = {}
 
-    # --- Modelo lineal ---
+    # Modelo lineal 
     lin_model = Pipeline([
         ("scaler", StandardScaler()),
         ("est", LinearRegression())
@@ -99,8 +92,8 @@ def train_models(X, y, save_dir="models"):
     results.append({"Model": "Linear", **metrics_lin})
     fitted["Linear"] = lin_model
 
-    # --- Modelo XGBoost (Optuna) ---
-    print("\n🔍 Optimizando hiperparámetros XGBoost con Optuna...")
+    #  Modelo XGBoost (Optuna)
+    print("\n Optimizando hiperparámetros XGBoost con Optuna...")
     best_params = tune_xgb_with_optuna(X, y, n_trials=30)
     xgb_model = XGBRegressor(**best_params)
     xgb_model.fit(X, y)
@@ -110,9 +103,9 @@ def train_models(X, y, save_dir="models"):
     results.append({"Model": "XGB_Optuna", **metrics_xgb})
     fitted["XGB_Optuna"] = xgb_model
 
-    # --- Comparar resultados ---
+    # Comparar resultados 
     results_df = pd.DataFrame(results).sort_values("RMSE").reset_index(drop=True)
-    print("\n=== Resultados comparativos ===")
+    print("\n Resultados comparativos")
     print(results_df)
 
     best_name = results_df.iloc[0]["Model"]
