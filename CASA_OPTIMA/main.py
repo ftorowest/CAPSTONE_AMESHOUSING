@@ -77,13 +77,10 @@ def main():
             "max": X.max()
         }),
         baseline_idx=1,
-        budget=200000
+        budget=500000
 )
     baseline_X = X.iloc[1]
 
-    print("Baseline features:\n")
-    #ordenamos alfabeticamente para mejor lectura
-    print(f"Baseline: {baseline_X.sort_index().to_dict()}")
 
 
 # ====== Punto de entrada ======
