@@ -99,5 +99,5 @@ def load_and_prepare(path_csv: str):
     X = X.fillna(medians)
 
     print(f" Dataset procesado: {X.shape[0]} filas, {X.shape[1]} features.")
-    return X, y
+    return X, y 
 

@@ -127,7 +127,7 @@ def optimize_house(
         "Bsmt_Full_Bath":      18500,
         "Open_Porch_SF":       200,
         "Wood_Deck_SF":           8.76,
-        "Overall_Cond":         1, #no accionable DIRECTAMENTE
+        "Overall_Cond":         0, #no accionable DIRECTAMENTE
     }
     
    
@@ -165,7 +165,7 @@ def optimize_house(
         "Bsmt_Full_Bath":       M_grande,
         "Bedroom_AbvGr":        M_grande,
         "Garage_Qual":          M_grande,
-        "Overall_Cond":         M_grande
+        "Overall"
     }
 
 
