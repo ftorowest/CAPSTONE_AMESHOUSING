@@ -67,7 +67,7 @@ def optimize_house(
     "Garage_Qual": 0,
     "Kitchen_AbvGr": 0,
     "Pool_Area": 0,
-    "Overall_Cond": 4
+    "Overall_Cond": 0
 }
     baseline = pd.Series(baseline)
     # Selección de la vivienda base
@@ -85,7 +85,7 @@ def optimize_house(
     #Parametros
     espacio_por_auto = 260 # pies² por auto adicional
     M_sqr_feet = 1e6  # gran número para restricciones tipo "if"
-    cocina_promedio = 161 
+    cocina_promedio = 100 #BUSCAR INFO
     baño_promedio = 50 #BUSCAR INFO
     habitacion_promedio = 150 #BUSCAR INFO
 
@@ -127,7 +127,7 @@ def optimize_house(
         "Bsmt_Full_Bath":      18500,
         "Open_Porch_SF":       200,
         "Wood_Deck_SF":           8.76,
-        "Overall_Cond":         0, #no accionable DIRECTAMENTE
+        "Overall_Cond":         1, #no accionable DIRECTAMENTE
     }
     
    
@@ -329,7 +329,7 @@ def optimize_house(
     #22. La casa debe tener almenos 1 dormitorio
     m.addConstr( 1 <= x["Bedroom_AbvGr"] , name="min_bedroom")
 
-    
+
     # Conexión con el modelo predictivo (Gurobi + ML)
 
     x_df = pd.DataFrame([[x[c] for c in trained_feats]], columns=trained_feats)
@@ -389,7 +389,7 @@ def optimize_house(
             delta = deltas[c]
             unit_cost = costs.get(c, 0.0)
             total_cost = delta * unit_cost
-            if abs(delta) > 1e-6:
+            if abs(delta) > 1e-6 and unit_cost > 0:
                 cost_breakdown[c] = total_cost
                 print(f"{c:25s} {delta:+10.3f} {unit_cost:15,.0f} {total_cost:15,.0f}")
 

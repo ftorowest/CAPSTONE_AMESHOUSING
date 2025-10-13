@@ -67,7 +67,7 @@ def optimize_house(
     "Garage_Qual": 0,
     "Kitchen_AbvGr": 0,
     "Pool_Area": 0,
-    "Overall_Cond": 4
+    "Overall_Cond": 6
 }
     baseline = pd.Series(baseline)
     # Selección de la vivienda base
@@ -85,7 +85,7 @@ def optimize_house(
     #Parametros
     espacio_por_auto = 260 # pies² por auto adicional
     M_sqr_feet = 1e6  # gran número para restricciones tipo "if"
-    cocina_promedio = 161 
+    cocina_promedio = 100 #BUSCAR INFO
     baño_promedio = 50 #BUSCAR INFO
     habitacion_promedio = 150 #BUSCAR INFO
 
@@ -329,7 +329,7 @@ def optimize_house(
     #22. La casa debe tener almenos 1 dormitorio
     m.addConstr( 1 <= x["Bedroom_AbvGr"] , name="min_bedroom")
 
-    
+
     # Conexión con el modelo predictivo (Gurobi + ML)
 
     x_df = pd.DataFrame([[x[c] for c in trained_feats]], columns=trained_feats)
