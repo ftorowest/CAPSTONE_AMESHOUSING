@@ -127,7 +127,7 @@ def optimize_house(
         "Bsmt_Full_Bath":      18500,
         "Open_Porch_SF":       200,
         "Wood_Deck_SF":           8.76,
-        "Overall_Cond":         1, #no accionable DIRECTAMENTE
+        "Overall_Cond":         0, #no accionable DIRECTAMENTE
     }
     
    
@@ -329,6 +329,9 @@ def optimize_house(
     #22. La casa debe tener almenos 1 dormitorio
     m.addConstr( 1 <= x["Bedroom_AbvGr"] , name="min_bedroom")
 
+    # 23. La calidad general de la casa no puede ser mayor que la calidad exterior
+    m.addConstr( x["Overall_Cond"] <= x["Exter_Qual"] * (9/4), name="Overall_Cond_limit")
+
 
     # Conexión con el modelo predictivo (Gurobi + ML)
 
@@ -389,7 +392,7 @@ def optimize_house(
             delta = deltas[c]
             unit_cost = costs.get(c, 0.0)
             total_cost = delta * unit_cost
-            if abs(delta) > 1e-6 and unit_cost > 0:
+            if abs(delta) > 1e-6 : # and unit_cost > 0
                 cost_breakdown[c] = total_cost
                 print(f"{c:25s} {delta:+10.3f} {unit_cost:15,.0f} {total_cost:15,.0f}")
 
