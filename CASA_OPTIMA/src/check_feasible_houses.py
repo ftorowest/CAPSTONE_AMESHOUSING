@@ -36,14 +36,12 @@ def check_house_feasibility(house):
     violations = {}
 
     # RESTRICCIÓN 2: Primer piso + garage + porches <= 80% del lote
-    area_construida = (house['First_Flr_SF'] +
-                       house['Garage_Cars'] * ESPACIO_POR_AUTO +
-                       house.get('Open_Porch_SF', 0) +
-                       house.get('Wood_Deck_SF', 0) +
+    area_construida = (house['First_Flr_SF'] + 
+                       house.get('Garage_Area', 0) + 
+                       house.get('Open_Porch_SF', 0) + 
+                       house.get('Wood_Deck_SF', 0) + 
                        house.get('Pool_Area', 0))
-    violations['lot_area'] = area_construida > house['Lot_Area'] * 0.8
-
-    # RESTRICCIÓN 3: Segundo piso <= Primer piso
+    violations['lot_area'] = area_construida > house['Lot_Area'] * 0.8    # RESTRICCIÓN 3: Segundo piso <= Primer piso
     violations['second_floor'] = house['Second_Flr_SF'] > 1.2 * house['First_Flr_SF']
 
     # RESTRICCIÓN 4: Si es de un piso, segundo piso = 0
