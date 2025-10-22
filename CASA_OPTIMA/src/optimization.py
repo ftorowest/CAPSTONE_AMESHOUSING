@@ -261,7 +261,7 @@ def optimize_house(
 
     # 2. Primer piso mas garage no puede superar el area del lote
     m.addConstr(x["First_Flr_SF"] + x["Garage_Cars"] * espacio_por_auto + x["Open_Porch_SF"]
-                 + x["Wood_Deck_SF"] + x["Pool_Area"] <= x["Lot_Area"], name="LotArea_limit")
+                 + x["Wood_Deck_SF"] + x["Pool_Area"] <= x["Lot_Area"] * 0.8 , name="LotArea_limit")
 
     # 3. Segundo piso no puede superar el primer piso
     m.addConstr(x["Second_Flr_SF"] <= x["First_Flr_SF"] , name="SecondFloor_limit")
@@ -276,11 +276,11 @@ def optimize_house(
     # 6. El tamaño del sótano no puede superar el primer piso
     m.addConstr(x["Total_Bsmt_SF"] <= x["First_Flr_SF"], name="Basement_size_limit")
 
-    # 7. El numero de baños completos no puede superar el número de habitaciones
+    # 7. El numero de baños no puede superar el número de habitaciones
     m.addConstr(x["Full_Bath"] + x["Half_Bath"] <= x["TotRms_AbvGrd"] + 1 , name="Baths_limit")
 
-    # 8. No pueden haber mas baños completos que habitaciones
-    m.addConstr(x["Full_Bath"] <= x["TotRms_AbvGrd"] , name="FullBath_limit")
+    # 8. No pueden haber mas baños completos que dormitorios
+    m.addConstr(x["Full_Bath"] <= x["Bedroom_AbvGr"] , name="FullBath_limit")
 
     # 9. El numero de baños half bath no puede ser mayor a baños completos
     m.addConstr(x["Half_Bath"] <= x["Full_Bath"] , name="HalfBath_limit")
@@ -292,7 +292,7 @@ def optimize_house(
     m.addConstr(x["Year_Remod_Add"] == 2025 , name="Remodeling_year_limit")
 
     # 12. Las ampliaciones en SF deben ser significativas (No de 1 pie²)
-    min_delta = {"First_Flr_SF": 40, "Second_Flr_SF": 30, "Total_Bsmt_SF": 20, "Pool_Area": 10}
+    min_delta = {"First_Flr_SF": 100, "Second_Flr_SF": 100 , "Total_Bsmt_SF": 100, "Pool_Area": 50}
 
     ampliaciones = {}
     for v, min_d in min_delta.items():

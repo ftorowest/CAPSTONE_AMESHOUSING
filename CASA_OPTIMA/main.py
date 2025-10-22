@@ -76,8 +76,8 @@ def main():
             "q95": X.quantile(0.95),
             "max": X.max()
         }),
-        baseline_idx=0,
-        budget=500000
+        baseline_idx=667,
+        budget=75000
 )
     baseline_X = X.iloc[1]
 
