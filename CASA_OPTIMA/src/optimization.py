@@ -81,7 +81,7 @@ def optimize_house(
     is_feasible, violations = check_house_feasibility(baseline)
     if not is_feasible:
         violated_constraints = [k for k, v in violations.items() if v]
-        print(f"\n❌ ERROR: La casa {idx} NO es factible para optimización")
+        print(f"\nERROR: La casa {idx} NO es factible para optimización")
         print(f"Restricciones violadas: {', '.join(violated_constraints)}")
         print("Seleccione una casa factible para continuar.")
         return None, None, None, None
