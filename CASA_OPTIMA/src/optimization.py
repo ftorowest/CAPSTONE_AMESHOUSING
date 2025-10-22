@@ -315,7 +315,7 @@ def optimize_house(
     m.addConstr( 1 <= x["Full_Bath"] , name="bath_min")
 
     # 16. Los SF construidos deben ser suficientes para que quepan los atributos seleccionados
-    m.addConstr( x["First_Flr_SF"] + x["Second_Flr_SF"] + x["Total_Bsmt_SF"] >= x["Full_Bath"] 
+    m.addConstr( x["First_Flr_SF"] + x["Second_Flr_SF"] >= x["Full_Bath"] 
                 * baño_promedio + x["Kitchen_AbvGr"] * cocina_promedio + x["TotRms_AbvGrd"] 
                 * habitacion_promedio + 100 , name="sf_min")
 
@@ -329,7 +329,7 @@ def optimize_house(
     m.addConstr(x["Total_Bsmt_SF"] <= M_grande * B, name="bsmt_activation")
 
     # 19. Atributos asociados al basement
-    basement_related = ["Bsmt_Qual", "Bsmt_Exposure", "Bsmt_Full_Bath"]
+    basement_related = ["Bsmt_Qual", "Bsmt_Exposure"]
     for v in basement_related:
         # Si no hay basement, atributo = 0
         m.addConstr(x[v] <= M_grande * B, name=f"{v}_upper_if_basement")
@@ -337,7 +337,7 @@ def optimize_house(
         m.addConstr(x[v] >= B, name=f"{v}_lower_if_basement")
 
     # 20. Baño de basement debe caber en este
-    m.addConstr(x["Total_Bsmt_SF"] >= baño_promedio * x["Bsmt_Full_Bath"], name="bsmt_bath_min_size")
+    m.addConstr(x["Total_Bsmt_SF"] * 0.5 >= baño_promedio * x["Bsmt_Full_Bath"], name="bsmt_bath_min_size")
 
     #21. Garage debe tener sus atributos asociados distintos de 0
     # Variable binaria de existencia de garage
