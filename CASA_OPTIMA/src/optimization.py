@@ -3,6 +3,7 @@ from gurobi_ml import add_predictor_constr
 from gurobipy import GRB
 import numpy as np
 import pandas as pd
+from check_feasible_houses import check_house_feasibility
 
 def optimize_house(
     model,
@@ -36,40 +37,39 @@ def optimize_house(
 
     print("\nOPTIMIZACIÓN CASA ÓPTIMA")
 
-
     baseline = {
-    "First_Flr_SF": 0,
-    "Second_Flr_SF": 0,
-    "Year_Built": 2025,
-    "Exter_Qual": 0,
-    "Total_Bsmt_SF": 0,
-    "Lot_Area": 12000,
-    "Garage_Area": 0,
-    "Kitchen_Qual": 0,
-    "Fireplaces": 0,
-    "Year_Remod_Add": 2025,
-    "Sale_Condition_Normal": 0,
-    "Longitude": -93.62,
-    "Full_Bath": 0,
-    "Bsmt_Qual": 0,
-    "Latitude": 42.05,
-    "Bsmt_Exposure": 0,
-    "TotRms_AbvGrd": 0,
-    "Half_Bath": 0,
-    "Heating_QC": 0,
-    "Garage_Finish": 0,
-    "Garage_Cond": 0,
-    "Wood_Deck_SF": 0,
-    "Open_Porch_SF": 0,
-    "Bsmt_Full_Bath": 0,
-    "House_Style_One_Story": 0,
-    "Sale_Type_New": 0,
-    "Bedroom_AbvGr": 0,
-    "Garage_Qual": 0,
-    "Kitchen_AbvGr": 0,
-    "Pool_Area": 0,
-    "Overall_Cond": 4
-}
+        "First_Flr_SF": 0,
+        "Second_Flr_SF": 0,
+        "Year_Built": 2025,
+        "Exter_Qual": 0,
+        "Total_Bsmt_SF": 0,
+        "Lot_Area": 12000,
+        "Garage_Area": 0,
+        "Kitchen_Qual": 0,
+        "Fireplaces": 0,
+        "Year_Remod_Add": 2025,
+        "Sale_Condition_Normal": 0,
+        "Longitude": -93.62,
+        "Full_Bath": 0,
+        "Bsmt_Qual": 0,
+        "Latitude": 42.05,
+        "Bsmt_Exposure": 0,
+        "TotRms_AbvGrd": 0,
+        "Half_Bath": 0,
+        "Heating_QC": 0,
+        "Garage_Finish": 0,
+        "Garage_Cond": 0,
+        "Wood_Deck_SF": 0,
+        "Open_Porch_SF": 0,
+        "Bsmt_Full_Bath": 0,
+        "House_Style_One_Story": 0,
+        "Sale_Type_New": 0,
+        "Bedroom_AbvGr": 0,
+        "Garage_Qual": 0,
+        "Kitchen_AbvGr": 0,
+        "Pool_Area": 0,
+        "Overall_Cond": 4
+    }
     
     baseline = pd.Series(baseline)
     # Selección de la vivienda base
@@ -77,6 +77,14 @@ def optimize_house(
     idx = baseline_idx if 0 <= baseline_idx < n else 0
     baseline = X.iloc[idx].astype(float)
     
+    # Verificar factibilidad de la casa baseline
+    is_feasible, violations = check_house_feasibility(baseline)
+    if not is_feasible:
+        violated_constraints = [k for k, v in violations.items() if v]
+        print(f"\n❌ ERROR: La casa {idx} NO es factible para optimización")
+        print(f"Restricciones violadas: {', '.join(violated_constraints)}")
+        print("Seleccione una casa factible para continuar.")
+        return None, None, None, None
 
     # Predicciones iniciales (en log y en valor real)
     pred_log = float(model.predict(baseline.to_frame().T)[0])
