@@ -87,8 +87,8 @@ def optimize_house(
     espacio_por_auto = 260 # pies² por auto adicional
     M_sqr_feet = 1e6  # gran número para restricciones tipo "if"
     cocina_promedio = 161 
-    baño_promedio = 65 #BUSCAR INFO
-    habitacion_promedio = 172 #BUSCAR INFO
+    baño_promedio = 45 # 70% de 65
+    habitacion_promedio = 120 # 70% de 172
     M_sqr_feet = 1e6  # gran número para restricciones tipo "if"
 
     print(f"\nCasa {idx} seleccionada como baseline")
@@ -262,15 +262,15 @@ def optimize_house(
     m.addConstr(x["First_Flr_SF"] + x["Garage_Area"]  + x["Open_Porch_SF"]
                  + x["Wood_Deck_SF"] <= x["Lot_Area"] * 0.65 , name="LotArea_limit")
 
-    # 3. Segundo piso no puede superar el primer piso
-    m.addConstr(x["Second_Flr_SF"] <= x["First_Flr_SF"] , name="SecondFloor_limit")
+    # 3. Segundo piso no puede supera a 1.2 veces el primer piso
+    m.addConstr(x["Second_Flr_SF"] <= 1.2* x["First_Flr_SF"] , name="SecondFloor_limit")
 
     # 4. Si la casa es de un solo piso, el segundo piso debe ser 0
     m.addConstr(x["Second_Flr_SF"] <= M_sqr_feet * (1 - baseline["House_Style_One_Story"]),
                  name="HouseStyle_1Story_limit")
 
     # 5. El garage es mas chico que el primer piso
-    m.addConstr(x["Garage_Area"]  <= x["First_Flr_SF"], name="Garage_size_limit")
+    m.addConstr(x["Garage_Area"]  <= x["First_Flr_SF"]*1.2, name="Garage_size_limit")
 
     # 6. El tamaño del sótano no puede superar el primer piso
     m.addConstr(x["Total_Bsmt_SF"] <= x["First_Flr_SF"], name="Basement_size_limit")
@@ -314,9 +314,10 @@ def optimize_house(
     m.addConstr( 1 <= x["Full_Bath"] , name="bath_min")
 
     # 16. Los SF construidos deben ser suficientes para que quepan los atributos seleccionados
-    m.addConstr( x["First_Flr_SF"] + x["Second_Flr_SF"] >= x["Full_Bath"] 
-                * baño_promedio + x["Kitchen_AbvGr"] * cocina_promedio + x["TotRms_AbvGrd"] 
-                * habitacion_promedio + 100 , name="sf_min")
+    m.addConstr( x["First_Flr_SF"] + x["Second_Flr_SF"] >= 
+                x["Full_Bath"] * baño_promedio + x["Bsmt_Full_Bath"] * baño_promedio + 
+                x["Kitchen_AbvGr"] * cocina_promedio + x["TotRms_AbvGrd"] * habitacion_promedio + 100 , 
+                name="sf_min")
 
     # 17. Las cocinas deben tener una calidad asociada distinta de 0
     m.addConstr( x["Kitchen_AbvGr"] <= M_grande * x["Kitchen_Qual"], name = "calidad_cocina")
