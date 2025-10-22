@@ -49,4 +49,17 @@ def explain_model(model, X, model_name="XGB_Optuna", save_csv=False):
         shap_df.to_csv("models/shap_values.csv", index=False)
         print("SHAP values guardados en models/shap_values.csv")
 
+    # Calcular la importancia promedio absoluta (igual que el gráfico de barras)
+    mean_abs_shap = np.abs(shap_values.values).mean(axis=0)
+    shap_importance = pd.DataFrame({
+        "Variable": X.columns,
+        "MeanAbsSHAP": mean_abs_shap
+    }).sort_values("MeanAbsSHAP", ascending=False)
+
+    print("\nImportancia promedio de cada variable (SHAP):")
+    print(shap_importance.head(10))  # muestra las 10 más influyentes
+
+    # Guardar en CSV
+    shap_importance.to_csv("models/shap_importance_summary.csv", index=False)
+
     return shap_values
