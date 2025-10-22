@@ -13,7 +13,7 @@ def main():
     # Configuración 
     DATA_PATH = "data/ames_dum.csv"
     SAVE_DIR = "models"
-    MODEL_TO_EXPLAIN = "XGB_Optuna"   # "Linear" o "XGB_Optuna"
+    MODEL_TO_EXPLAIN = "Linear"   # "Linear" o "XGB_Optuna"
     os.makedirs(SAVE_DIR, exist_ok=True)
 
     #  Carga y preparacion de datos 

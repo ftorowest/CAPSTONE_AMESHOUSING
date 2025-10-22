@@ -77,7 +77,7 @@ def main():
             "max": X.max()
         }),
         baseline_idx=667,
-        budget=75000
+        budget=125000
 )
     baseline_X = X.iloc[1]
 

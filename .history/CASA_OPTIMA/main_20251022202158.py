@@ -66,7 +66,7 @@ def main():
     # Optimización con Gurobi 
     print("\nOptimizando la Casa Óptima")
     result = optimize_house(
-        model=fitted["XGB_Optuna"],
+        model=fitted["XGB"],
         X=X,
         y_log=y,
         trained_feats=X.columns.tolist(),

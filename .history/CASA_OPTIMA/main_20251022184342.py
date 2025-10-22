@@ -7,7 +7,7 @@ from src.preprocessing import load_and_prepare
 from src.train_model import train_models
 from src.interpretability import explain_model
 from src.optimization import optimize_house
-
+from src/check_feasible_houses import check_house_feasibility
 
 def main():
     # Configuración 
