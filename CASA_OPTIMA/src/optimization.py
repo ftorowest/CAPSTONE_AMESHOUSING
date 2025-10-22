@@ -278,10 +278,10 @@ def optimize_house(
                  name="HouseStyle_1Story_limit")
 
     # 5. El garage es mas chico que el primer piso
-    m.addConstr(x["Garage_Area"]  <= x["First_Flr_SF"]*1.2, name="Garage_size_limit")
+    m.addConstr(x["Garage_Area"]  <= x["First_Flr_SF"], name="Garage_size_limit")
 
     # 6. El tamaño del sótano no puede superar el primer piso
-    m.addConstr(x["Total_Bsmt_SF"] <= x["First_Flr_SF"], name="Basement_size_limit")
+    m.addConstr(x["Total_Bsmt_SF"] <= x["First_Flr_SF"] * 1.2, name="Basement_size_limit")
 
     # 7. El numero de baños no puede superar el número de habitaciones
     m.addConstr(x["Full_Bath"] + x["Half_Bath"] <= x["TotRms_AbvGrd"] + 1 , name="Baths_limit")
