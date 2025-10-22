@@ -3,7 +3,7 @@ from gurobi_ml import add_predictor_constr
 from gurobipy import GRB
 import numpy as np
 import pandas as pd
-from src.check_feasible_houses import check_house_feasibility
+from check_feasible_houses import check_house_feasibility
 
 def optimize_house(
     model,
@@ -12,7 +12,7 @@ def optimize_house(
     trained_feats,
     trained_stats,
     baseline_idx=0,
-    budget = 200000,
+    budget=200_000,
     pwl_k=25,
 ):
     """
