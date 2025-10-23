@@ -177,7 +177,7 @@ costs_df["budget"] = df_clean["budget"].values
 attribute_stats = []
 
 for col in changes_df.columns:
-    if col in ["house_idx", "budget"]:
+    if col in ["house_idx", "budget", "Year_Remod_Add"]:
         continue
     
     # Número de veces que se modificó (cambio != 0)
@@ -209,49 +209,88 @@ for col in changes_df.columns:
 stats_df = pd.DataFrame(attribute_stats)
 stats_df = stats_df.sort_values("modifications", ascending=False)
 
+# Función para generar colores basados en cuartil 75
+def get_colors_by_median(values):
+    q75_val = values.quantile(0.75)
+    return ["#5DADE2" if v > q75_val else "#95A5A6" for v in values]
+
 # Gráfico 3A: Frecuencia de modificación
 print("\n[3A] Generando gráfico: Frecuencia de modificaciones...")
-fig, axes = plt.subplots(2, 2, figsize=(16, 12))
 
 # Top 15 atributos más modificados
 top_15 = stats_df.head(15)
+colors_freq = get_colors_by_median(top_15["modifications"])
 
-axes[0, 0].barh(top_15["attribute"], top_15["modifications"],
-                color=sns.color_palette("viridis", len(top_15)))
-axes[0, 0].set_xlabel("Número de veces modificado", fontweight="bold")
-axes[0, 0].set_title("Top 15: Atributos más modificados", fontweight="bold")
-axes[0, 0].grid(axis="x", alpha=0.3)
-
-# Porcentaje de modificación
-axes[0, 1].barh(top_15["attribute"], top_15["pct_modified"],
-                color=sns.color_palette("plasma", len(top_15)))
-axes[0, 1].set_xlabel("% de casos modificados", fontweight="bold")
-axes[0, 1].set_title("Top 15: % de modificación", fontweight="bold")
-axes[0, 1].grid(axis="x", alpha=0.3)
-
-# Gasto promedio por atributo (cuando se modifica)
-top_15_cost = stats_df.nlargest(15, "avg_cost")
-axes[1, 0].barh(top_15_cost["attribute"], top_15_cost["avg_cost"],
-                color=sns.color_palette("rocket", len(top_15_cost)))
-axes[1, 0].set_xlabel("Gasto promedio (USD)", fontweight="bold")
-axes[1, 0].set_title("Top 15: Gasto promedio al modificar", fontweight="bold")
-axes[1, 0].grid(axis="x", alpha=0.3)
-
-# Gasto total acumulado por atributo
-top_15_total = stats_df.nlargest(15, "total_cost")
-axes[1, 1].barh(top_15_total["attribute"], top_15_total["total_cost"],
-                color=sns.color_palette("mako", len(top_15_total)))
-axes[1, 1].set_xlabel("Gasto total acumulado (USD)", fontweight="bold")
-axes[1, 1].set_title("Top 15: Inversión total por atributo", fontweight="bold")
-axes[1, 1].grid(axis="x", alpha=0.3)
-
-plt.suptitle("Análisis de Cambios por Atributo - 100 Optimizaciones",
-             fontsize=16, fontweight="bold", y=0.995)
+plt.figure(figsize=(10, 8))
+plt.barh(top_15["attribute"], top_15["modifications"], color=colors_freq)
+plt.xlabel("Número de veces modificado", fontsize=12, fontweight="bold")
+plt.title("Top 15: Atributos más modificados",
+          fontsize=14, fontweight="bold")
+plt.grid(axis="x", alpha=0.3)
 plt.tight_layout()
 
-output_path_3 = f"{OUTPUT_DIR}/analisis_atributos.png"
-plt.savefig(output_path_3, dpi=300, bbox_inches="tight")
-print(f"✓ Guardado: {output_path_3}")
+output_path_3a = f"{OUTPUT_DIR}/atributos_frecuencia.png"
+plt.savefig(output_path_3a, dpi=300, bbox_inches="tight")
+print(f"✓ Guardado: {output_path_3a}")
+plt.close()
+
+# Gráfico 3B: Porcentaje de modificación
+print("\n[3B] Generando gráfico: % de modificación...")
+colors_pct = get_colors_by_median(top_15["pct_modified"])
+
+plt.figure(figsize=(10, 8))
+plt.barh(top_15["attribute"], top_15["pct_modified"], color=colors_pct)
+plt.xlabel("% de casos modificados", fontsize=12, fontweight="bold")
+plt.title("Top 15: % de modificación",
+          fontsize=14, fontweight="bold")
+plt.grid(axis="x", alpha=0.3)
+plt.tight_layout()
+
+output_path_3b = f"{OUTPUT_DIR}/atributos_porcentaje.png"
+plt.savefig(output_path_3b, dpi=300, bbox_inches="tight")
+print(f"✓ Guardado: {output_path_3b}")
+plt.close()
+
+# Gráfico 3C: Gasto promedio por atributo
+print("\n[3C] Generando gráfico: Gasto promedio...")
+top_15_cost = stats_df.nlargest(15, "avg_cost")
+colors_avg = get_colors_by_median(top_15_cost["avg_cost"])
+
+plt.figure(figsize=(10, 8))
+plt.barh(top_15_cost["attribute"], top_15_cost["avg_cost"], color=colors_avg)
+plt.xlabel("Gasto promedio (USD)", fontsize=12, fontweight="bold")
+plt.title("Top 15: Gasto promedio al modificar",
+          fontsize=14, fontweight="bold")
+plt.grid(axis="x", alpha=0.3)
+plt.tight_layout()
+
+output_path_3c = f"{OUTPUT_DIR}/atributos_gasto_promedio.png"
+plt.savefig(output_path_3c, dpi=300, bbox_inches="tight")
+print(f"✓ Guardado: {output_path_3c}")
+plt.close()
+
+# Gráfico 3D: Gasto total acumulado
+print("\n[3D] Generando gráfico: Gasto total acumulado...")
+top_15_total = stats_df.nlargest(15, "total_cost")
+colors_total = get_colors_by_median(top_15_total["total_cost"])
+
+plt.figure(figsize=(10, 8))
+plt.barh(top_15_total["attribute"], top_15_total["total_cost"],
+         color=colors_total)
+plt.xlabel("Gasto total acumulado (USD)", fontsize=12, fontweight="bold")
+plt.title("Top 15: Inversión total por atributo",
+          fontsize=14, fontweight="bold")
+plt.grid(axis="x", alpha=0.3)
+
+# Formatear el eje X para evitar notación científica
+ax = plt.gca()
+ax.ticklabel_format(style='plain', axis='x')
+
+plt.tight_layout()
+
+output_path_3d = f"{OUTPUT_DIR}/atributos_gasto_total.png"
+plt.savefig(output_path_3d, dpi=300, bbox_inches="tight")
+print(f"✓ Guardado: {output_path_3d}")
 plt.close()
 
 # Guardar estadísticas en CSV
