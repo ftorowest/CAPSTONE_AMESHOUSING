@@ -10,6 +10,9 @@ import pandas as pd
 from joblib import load
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, conint, confloat
+from fastapi.middleware.cors import CORSMiddleware
+
+
 
 from src.preprocessing import load_and_prepare
 from src.optimization import optimize_house
@@ -20,6 +23,14 @@ DATA_PATH = "data/ames_dum.csv"
 SAVE_DIR  = "models"
 
 app = FastAPI(title="Casa Óptima API", version="1.0.0")
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # -------- Artefactos en memoria (se cargan al iniciar) --------
 X, y = load_and_prepare(DATA_PATH)
