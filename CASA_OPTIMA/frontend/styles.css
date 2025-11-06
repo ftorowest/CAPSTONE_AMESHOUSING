@@ -1,0 +1,94 @@
+body {
+  font-family: system-ui, sans-serif;
+  background: #fafafa;
+  max-width: 1000px;
+  margin: 2em auto;
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+  color: #005bbb;
+}
+
+fieldset {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 1.5em;
+  padding: 1em;
+  background: #fff;
+}
+
+legend {
+  font-weight: bold;
+  color: #005bbb;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.5em 1.5em;
+}
+
+label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+input {
+  width: 100px;
+  padding: 0.3em;
+}
+
+button {
+  background: #005bbb;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 0.6em 1.2em;
+  cursor: pointer;
+  display: block;
+  margin-top: 1em;
+}
+
+button:hover {
+  background: #003f8a;
+}
+
+pre {
+  background: #f0f0f0;
+  padding: 1em;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+.hidden {
+  display: none;
+}
+.summary {
+  background: #eef6ff;
+  border: 1px solid #bcd3ff;
+  border-radius: 8px;
+  padding: 1em;
+  margin-top: 1em;
+}
+.summary p {
+  margin: 0.2em 0;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1em;
+  background: #fff;
+}
+th, td {
+  border: 1px solid #ccc;
+  padding: 6px 10px;
+  text-align: left;
+}
+th {
+  background: #f3f3f3;
+}
+

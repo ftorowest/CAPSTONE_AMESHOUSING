@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Casa Óptima</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>🏠 Casa Óptima</h1>
+
+  <form id="optimizeForm">
+    <fieldset>
+      <legend>Configuración general</legend>
+      <label>Presupuesto ($): <input type="number" id="budget" value="50000" /></label>
+      <label>Índice baseline: <input type="number" id="baseline_idx" value="0" /></label>
+      <label>Segmentos PWL: <input type="number" id="pwl_k" value="10" /></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Características del baseline (31 features del modelo)</legend>
+
+      <div class="grid">
+        <label>First Flr SF: <input type="number" id="First_Flr_SF" value="1656" /></label>
+        <label>Second Flr SF: <input type="number" id="Second_Flr_SF" value="0" /></label>
+        <label>Year Built: <input type="number" id="Year_Built" value="1960" /></label>
+        <label>Exter Qual: <input type="number" id="Exter_Qual" value="3" /></label>
+        <label>Total Bsmt SF: <input type="number" id="Total_Bsmt_SF" value="1080" /></label>
+        <label>Lot Area: <input type="number" id="Lot_Area" value="31770" /></label>
+        <label>Garage Area: <input type="number" id="Garage_Area" value="528" /></label>
+        <label>Kitchen Qual: <input type="number" id="Kitchen_Qual" value="3" /></label>
+        <label>Fireplaces: <input type="number" id="Fireplaces" value="2" /></label>
+        <label>Year Remod Add: <input type="number" id="Year_Remod_Add" value="1960" /></label>
+        <label>Sale Condition Normal: <input type="number" id="Sale_Condition_Normal" value="1" /></label>
+        <label>Longitude: <input type="number" id="Longitude" value="-93.6197" step="0.0001" /></label>
+        <label>Full Bath: <input type="number" id="Full_Bath" value="1" /></label>
+        <label>Bsmt Qual: <input type="number" id="Bsmt_Qual" value="4" /></label>
+        <label>Latitude: <input type="number" id="Latitude" value="42.054" step="0.0001" /></label>
+        <label>Bsmt Exposure: <input type="number" id="Bsmt_Exposure" value="5" /></label>
+        <label>TotRms AbvGrd: <input type="number" id="TotRms_AbvGrd" value="7" /></label>
+        <label>Half Bath: <input type="number" id="Half_Bath" value="0" /></label>
+        <label>Heating QC: <input type="number" id="Heating_QC" value="2" /></label>
+        <label>Garage Finish: <input type="number" id="Garage_Finish" value="4" /></label>
+        <label>Garage Cond: <input type="number" id="Garage_Cond" value="4" /></label>
+        <label>Wood Deck SF: <input type="number" id="Wood_Deck_SF" value="210" /></label>
+        <label>Open Porch SF: <input type="number" id="Open_Porch_SF" value="62" /></label>
+        <label>Bsmt Full Bath: <input type="number" id="Bsmt_Full_Bath" value="1" /></label>
+        <label>House Style One Story: <input type="number" id="House_Style_One_Story" value="1" /></label>
+        <label>Sale Type New: <input type="number" id="Sale_Type_New" value="0" /></label>
+        <label>Bedroom AbvGr: <input type="number" id="Bedroom_AbvGr" value="3" /></label>
+        <label>Garage Qual: <input type="number" id="Garage_Qual" value="4" /></label>
+        <label>Kitchen AbvGr: <input type="number" id="Kitchen_AbvGr" value="1" /></label>
+        <label>Pool Area: <input type="number" id="Pool_Area" value="0" /></label>
+        <label>Overall Cond: <input type="number" id="Overall_Cond" value="5" /></label>
+      </div>
+    </fieldset>
+
+    <button type="submit">Optimizar</button>
+  </form>
+
+<h2>Resultado</h2>
+
+<div id="summary" class="summary hidden">
+  <h3>📈 Resumen de optimización</h3>
+  <p><b>Precio antes:</b> <span id="price_before"></span></p>
+  <p><b>Precio después:</b> <span id="price_after"></span></p>
+  <p><b>Gasto total:</b> <span id="spent"></span></p>
+  <p><b>Ganancia:</b> <span id="profit"></span></p>
+  <p><b>ROI:</b> <span id="roi"></span></p>
+</div>
+
+<div id="tables" class="hidden">
+  <h3>🔧 Cambios sugeridos</h3>
+  <table id="changesTable">
+    <thead>
+      <tr><th>Variable</th><th>Δ Valor</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h3>💰 Costos estimados</h3>
+  <table id="costTable">
+    <thead>
+      <tr><th>Variable</th><th>Costo ($)</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h3>🏡 Casa optimizada</h3>
+  <table id="finalHouseTable">
+    <thead>
+      <tr><th>Variable</th><th>Valor final</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<pre id="output" class="hidden"></pre>
+
+<script src="script.js"></script>
+
+</body>
+</html>
