@@ -484,6 +484,35 @@ def optimize_house(
 
         
     else:
-        print("No se encontró solución factible.")
-        return None
+        result_info = {
+            "status": "infeasible",
+            "violated_constraints": [],
+            "active_constraints": [],
+            "involved_variables": [],
+            "message": "No se encontró solución factible."
+        }
+
+        try:
+            # Calcular IIS (conjunto mínimo de restricciones conflictivas)
+            m.computeIIS()
+            result_info["violated_constraints"] = [
+                c.ConstrName for c in m.getConstrs() if c.IISConstr
+            ]
+            result_info["involved_variables"] = [
+                v.VarName for v in m.getVars() if v.IISLB or v.IISUB
+            ]
+        except Exception as e:
+            result_info["message"] += f" (Error al detectar restricciones conflictivas: {str(e)})"
+
+        # Restricciones con slack ≈ 0 (activas o casi violadas)
+        try:
+            result_info["active_constraints"] = [
+                {"name": c.ConstrName, "slack": c.Slack}
+                for c in m.getConstrs() if abs(c.Slack) < 1e-6
+            ]
+        except Exception:
+            pass
+
+        return result_info
+
 

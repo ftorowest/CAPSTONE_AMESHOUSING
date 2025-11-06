@@ -11,6 +11,8 @@ from joblib import load
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, conint, confloat
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
 
 
 
@@ -102,7 +104,7 @@ class OptimizeResponse(BaseModel):
     cost_breakdown: Dict[str, float]
     final_house: List[Dict[str, float]]
 
-# -------- Endpoints --------
+# -------- Rutas API --------
 @app.post("/optimize")
 def optimize(req: OptimizeRequest):
     """Optimiza una casa del dataset usando el modelo XGBoost."""
@@ -122,42 +124,60 @@ def optimize(req: OptimizeRequest):
             budget=req.budget,
             pwl_k=req.pwl_k,
         )
-        if not result:
-            raise HTTPException(422, "Optimización no factible")
 
-        # Extraer desde el diccionario que retorna optimize_house
-        price_before   = result.get("price_before")
-        price_after    = result.get("price_after")
-        spent          = result.get("spent")
-        profit         = result.get("profit")
-        roi            = result.get("roi")
-        changes        = result.get("changes")
-        cost_breakdown = result.get("cost_breakdown")
-        final_house    = result.get("final_house")
+        # ---------------------------
+        # 🔹 CASO 1: Sin solución (None)
+        # ---------------------------
+        if result is None:
+            return JSONResponse(
+                content={
+                    "status": "infeasible",
+                    "message": "No se encontró una solución factible.",
+                    "violated_constraints": [],
+                    "active_constraints": []
+                },
+                status_code=200
+            )
 
-        # Convertir ROI a número o None
-        try:
-            roi_value = float(roi) if roi is not None else None
-            if roi_value is not None and math.isnan(roi_value):
-                roi_value = None
-        except (ValueError, TypeError):
-            roi_value = None
+        # ---------------------------
+        # 🔹 CASO 2: Resultado especial con restricciones violadas
+        # ---------------------------
+        if isinstance(result, dict) and result.get("status") == "infeasible":
+            return JSONResponse(content=result, status_code=200)
 
+        # ---------------------------
+        # 🔹 CASO 3: Solución factible (normal)
+        # ---------------------------
         out = {
-            "price_before": float(price_before),
-            "price_after": float(price_after),
-            "spent": float(spent),
-            "profit": float(profit),
-            "roi": roi_value,
-            "changes": to_py(changes),
-            "cost_breakdown": to_py(cost_breakdown),
-            "final_house": to_py(final_house),
+            "status": "ok",
+            "price_before": float(result["price_before"]),
+            "price_after": float(result["price_after"]),
+            "spent": float(result["spent"]),
+            "profit": float(result["profit"]),
+            "roi": (
+                None
+                if result["roi"] is None or math.isnan(result["roi"])
+                else float(result["roi"])
+            ),
+            "changes": to_py(result["changes"]),
+            "cost_breakdown": to_py(result["cost_breakdown"]),
+            "final_house": to_py(result["final_house"]),
         }
-        return out
+
+        return JSONResponse(content=out, status_code=200)
+
+    except Exception as e:
+        # 🔹 Si ocurre otro error no esperado, lo informamos como 500
+        return JSONResponse(
+            content={"status": "error", "message": str(e)},
+            status_code=500
+        )
 
     finally:
         dt = time.time() - t0
         print(f"[INFO] /optimize tardó {dt:.2f}s")
+
+
 
 
 if __name__ == "__main__":
