@@ -12,6 +12,9 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, conint, confloat
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+
 
 
 
@@ -181,7 +184,7 @@ def optimize(req: OptimizeRequest):
             ),
             "changes": to_py(result["changes"]),
             "cost_breakdown": to_py(result["cost_breakdown"]),
-            "final_house": to_py(result["final_house"]),
+            "final_house": to_py(result["final_house"])
         }
 
         return JSONResponse(content=out, status_code=200)

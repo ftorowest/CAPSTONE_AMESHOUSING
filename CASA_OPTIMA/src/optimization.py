@@ -2,6 +2,9 @@ import gurobipy as gp
 from gurobi_ml import add_predictor_constr  
 from gurobipy import GRB
 import numpy as np
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+
 import pandas as pd
 try:
     # When src is imported as a package (from src.optimization import ...)
@@ -478,7 +481,7 @@ def optimize_house(
             "roi": roi,
             "changes": deltas,
             "cost_breakdown": cost_breakdown,
-            "final_house": df_final_house
+            "final_house": df_final_house.to_dict(orient="records")
         }
 
         
