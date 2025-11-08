@@ -120,12 +120,12 @@ def optimize(req: OptimizeRequest):
         # 🔹 Elegir modelo según el valor recibido desde el frontend
         if req.model.lower() == "xgboost":
             model_obj = MODEL
-            print("[API] ✅ Usando modelo XGBoost (Optuna).")
+            print("[API]  Usando modelo XGBoost (Optuna).")
         elif req.model.lower() == "linear":
             if 'LINEAR_MODEL' not in globals() or LINEAR_MODEL is None:
                 raise HTTPException(500, "❌ Modelo lineal no cargado. Asegúrate de tener models/linear_model.pkl")
             model_obj = LINEAR_MODEL
-            print("[API] ✅ Usando modelo Lineal.")
+            print("[API]  Usando modelo Lineal.")
         else:
             raise HTTPException(400, f"❌ Modelo no reconocido: {req.model}. Usa 'xgboost' o 'linear'.")
 
