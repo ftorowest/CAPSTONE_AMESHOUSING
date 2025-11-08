@@ -15,7 +15,18 @@
         <label>
           Presupuesto ($):
           <input type="number" id="budget" value="50000" />
+          
         </label>
+
+        <!-- 🔽 Nuevo: selector de modelo -->
+        <label>
+          Modelo predictivo:
+          <select id="modelSelector">
+            <option value="xgboost" selected>XGBoost</option>
+            <option value="linear">Regresión Lineal</option>
+          </select>
+        </label>
+
 
         <label class="precision-label">
           Precisión del modelo:
@@ -210,6 +221,29 @@
   </section>
 
   <pre id="output" class="hidden"></pre>
+
+  <script>
+    const modelSelector = document.getElementById("modelSelector");
+    const precisionLabel = document.querySelector(".precision-label"); // 🔹 solo el contenedor del rango
+
+    // Mostrar/ocultar solo el control de precisión
+    modelSelector.addEventListener("change", () => {
+      if (modelSelector.value === "xgboost") {
+        precisionLabel.style.display = "block";
+      } else {
+        precisionLabel.style.display = "none";
+      }
+    });
+
+    // Actualizar valor visible del slider
+    const pwlRange = document.getElementById("pwl_k");
+    const pwlLabel = document.getElementById("pwl_label");
+    pwlRange.addEventListener("input", () => {
+      pwlLabel.textContent = pwlRange.value;
+    });
+  </script>
+
+
 
   <script src="script.js"></script>
 </body>

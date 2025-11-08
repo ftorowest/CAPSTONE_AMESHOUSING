@@ -396,7 +396,6 @@ def optimize_house(
 
         print("Cambios sugeridos:")
         print("-" * 70)
-        print(f"{'Variable':25s} {'Δ Valor':>10s} {'Costo unitario':>15s} {'Costo total':>15s}")
         print("-" * 70)
 
         cost_breakdown = {}

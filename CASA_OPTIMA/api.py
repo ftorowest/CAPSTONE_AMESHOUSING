@@ -41,31 +41,34 @@ TRAINED_STATS: Optional[pd.DataFrame] = None
 MODEL = None
 
 def _ensure_models():
-    """Carga/entrena y deja todo listo para servir."""
-    global X, y_log, TRAINED_STATS, MODEL
+    global X, y_log, TRAINED_STATS, MODEL, LINEAR_MODEL
 
-    # 1) Datos
     print("[API] Cargando y preparando dataset…")
     X, y_log = load_and_prepare(DATA_PATH)
 
-    # 2) Modelo XGBoost
+    # 1️⃣ XGBoost
     xgb_path = os.path.join(SAVE_DIR, "xgb_optuna_model.pkl")
+    linear_path = os.path.join(SAVE_DIR, "linear_model.pkl")
     os.makedirs(SAVE_DIR, exist_ok=True)
 
     if os.path.exists(xgb_path):
-        print("[API] Modelo encontrado. Cargando…")
+        print("[API] Modelo XGBoost encontrado.")
         MODEL = load(xgb_path)
     else:
-        raise HTTPException(500, "Modelo no encontrado. Entrena primero con train_model.py")
+        raise HTTPException(500, "Modelo XGBoost no encontrado.")
 
-    # 3) Metadatos para optimización
+    if os.path.exists(linear_path):
+        print("[API] Modelo Lineal encontrado.")
+        LINEAR_MODEL = load(linear_path)
+    else:
+        print("[WARN] Modelo lineal no encontrado. Solo se usará XGBoost.")
+
     TRAINED_STATS = pd.DataFrame({
-        "q05":   X.quantile(0.05),
-        "median":X.median(),
-        "q95":   X.quantile(0.95),
-        "max":   X.max()
+        "q05": X.quantile(0.05),
+        "median": X.median(),
+        "q95": X.quantile(0.95),
+        "max": X.max()
     })
-
     print(f"[API] Listo. Filas={len(X)}")
 
 # Carga artefactos al iniciar el proceso
@@ -89,6 +92,7 @@ def to_py(obj: Any):
 
 # -------- Esquemas pydantic --------
 class OptimizeRequest(BaseModel):
+    model: str = "xgboost" # "xgboost" o "linear"
     baseline_idx: int = 0
     budget: float = 200000
     pwl_k: int = 25
@@ -113,8 +117,24 @@ def optimize(req: OptimizeRequest):
 
     t0 = time.time()
     try:
+        # 🔹 Elegir modelo según el valor recibido desde el frontend
+        if req.model.lower() == "xgboost":
+            model_obj = MODEL
+            print("[API] ✅ Usando modelo XGBoost (Optuna).")
+        elif req.model.lower() == "linear":
+            if 'LINEAR_MODEL' not in globals() or LINEAR_MODEL is None:
+                raise HTTPException(500, "❌ Modelo lineal no cargado. Asegúrate de tener models/linear_model.pkl")
+            model_obj = LINEAR_MODEL
+            print("[API] ✅ Usando modelo Lineal.")
+        else:
+            raise HTTPException(400, f"❌ Modelo no reconocido: {req.model}. Usa 'xgboost' o 'linear'.")
+
+        # Para lineal, usar un valor seguro por si acaso
+        pwl_value = req.pwl_k if req.model.lower() == "xgboost" else 25
+
+        # 🔹 Llamar a optimize_house con el modelo correcto
         result = optimize_house(
-            model=MODEL,
+            model=model_obj,
             X=X,
             y_log=y_log,
             trained_feats=X.columns.tolist(),
@@ -122,7 +142,7 @@ def optimize(req: OptimizeRequest):
             baseline_idx=req.baseline_idx,
             baseline_prueba=req.baseline_prueba,
             budget=req.budget,
-            pwl_k=req.pwl_k,
+            pwl_k=pwl_value
         )
 
         # ---------------------------

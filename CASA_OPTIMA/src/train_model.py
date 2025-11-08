@@ -9,6 +9,7 @@ from sklearn.base import clone
 from xgboost import XGBRegressor
 import optuna
 from joblib import dump
+from sklearn.preprocessing import PolynomialFeatures
 
 
 # Función de RMSE compatible 
@@ -84,6 +85,7 @@ def train_models(X, y, save_dir="models"):
     # Modelo lineal 
     lin_model = Pipeline([
         ("scaler", StandardScaler()),
+        ("poly", PolynomialFeatures(degree=2, include_bias=False)),
         ("est", LinearRegression())
     ])
     metrics_lin = cv_eval(lin_model, X, y)

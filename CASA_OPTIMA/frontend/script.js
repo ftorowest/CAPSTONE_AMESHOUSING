@@ -89,6 +89,7 @@ document
     e.preventDefault();
 
     const budget = parseFloat(document.getElementById("budget").value);
+    const model = document.getElementById("modelSelector").value;
     const pwl_k = parseInt(document.getElementById("pwl_k").value);
 
     const fields = [
@@ -115,6 +116,7 @@ document
     });
 
     const payload = {
+      model,
       baseline_idx: 0,
       budget,
       pwl_k,
