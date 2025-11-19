@@ -257,8 +257,8 @@ def optimize_house(
     # 9. El numero de baños half bath no puede ser mayor a baños completos
     m.addConstr(x["Half_Bath"] <= x["Full_Bath"] , name="HalfBath_limit")
 
-    # 10. El numero de fireplaces no puede ser mayor a 2
-    m.addConstr(x["Fireplaces"] <=2 , name="Fireplaces_limit")
+    # 10. El numero de fireplaces no puede superar el número de habitaciones
+    m.addConstr(x["Fireplaces"] <= x["Full_Bath"] + x["Half_Bath"], name="Fireplaces_limit")
 
     # 11. EL año de remodelación es igual a el año actual
     m.addConstr(x["Year_Remod_Add"] == 2025 , name="Remodeling_year_limit")

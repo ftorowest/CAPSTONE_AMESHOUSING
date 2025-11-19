@@ -120,7 +120,7 @@ def optimize_house(
         "Garage_Cond":          M_grande,  # mejorar condición del garage
         "Kitchen_Qual":         M_grande,  # subir un nivel (TA→Gd→Ex)
         "Kitchen_AbvGr":        M_grande,  # categórica (no accionable directamente)
-        "Fireplaces":           M_grande,  # agregar chimenea   
+        "Fireplaces":           2,  # agregar chimenea   
         "Year_Remod_Add":       M_grande,  # remodelar o actualizar hasta 3 "años equivalentes"
         "Sale_Condition_Normal": 0,  # no se modifica
         "Longitude":            0,  # ubicación fija
@@ -257,8 +257,8 @@ def optimize_house(
     # 9. El numero de baños half bath no puede ser mayor a baños completos
     m.addConstr(x["Half_Bath"] <= x["Full_Bath"] , name="HalfBath_limit")
 
-    # 10. El numero de fireplaces no puede ser mayor a 2
-    m.addConstr(x["Fireplaces"] <=2 , name="Fireplaces_limit")
+    # 10. El numero de fireplaces no puede superar el número de habitaciones
+    m.addConstr(x["Fireplaces"] <= x["Full_Bath"] + x["Half_Bath"], name="Fireplaces_limit")
 
     # 11. EL año de remodelación es igual a el año actual
     m.addConstr(x["Year_Remod_Add"] == 2025 , name="Remodeling_year_limit")

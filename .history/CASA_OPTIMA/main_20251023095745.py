@@ -66,7 +66,7 @@ def main():
     # Optimización con Gurobi 
     print("\nOptimizando la Casa Óptima")
     result = optimize_house(
-        model=fitted["XGB_Optuna"],
+        model=fitted["Linear"],
         X=X,
         y_log=y,
         trained_feats=X.columns.tolist(),
@@ -76,8 +76,8 @@ def main():
             "q95": X.quantile(0.95),
             "max": X.max()
         }),
-        baseline_idx=2895,
-        budget=75000
+        baseline_idx=1502,
+        budget=125000
 )
     baseline_X = X.iloc[1]
 

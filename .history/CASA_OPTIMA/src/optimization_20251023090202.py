@@ -37,7 +37,41 @@ def optimize_house(
 
     print("\nOPTIMIZACIÓN CASA ÓPTIMA")
 
+    baseline = {
+        "First_Flr_SF": 0,
+        "Second_Flr_SF": 0,
+        "Year_Built": 2025,
+        "Exter_Qual": 0,
+        "Total_Bsmt_SF": 0,
+        "Lot_Area": 12000,
+        "Garage_Area": 0,
+        "Kitchen_Qual": 0,
+        "Fireplaces": 0,
+        "Year_Remod_Add": 2025,
+        "Sale_Condition_Normal": 0,
+        "Longitude": -93.62,
+        "Full_Bath": 0,
+        "Bsmt_Qual": 0,
+        "Latitude": 42.05,
+        "Bsmt_Exposure": 0,
+        "TotRms_AbvGrd": 0,
+        "Half_Bath": 0,
+        "Heating_QC": 0,
+        "Garage_Finish": 0,
+        "Garage_Cond": 0,
+        "Wood_Deck_SF": 0,
+        "Open_Porch_SF": 0,
+        "Bsmt_Full_Bath": 0,
+        "House_Style_One_Story": 0,
+        "Sale_Type_New": 0,
+        "Bedroom_AbvGr": 0,
+        "Garage_Qual": 0,
+        "Kitchen_AbvGr": 0,
+        "Pool_Area": 0,
+        "Overall_Cond": 4
+    }
     
+    baseline = pd.Series(baseline)
     # Selección de la vivienda base
     n = len(X)
     idx = baseline_idx if 0 <= baseline_idx < n else 0
@@ -58,6 +92,7 @@ def optimize_house(
     price_real = float(np.expm1(y_log.iloc[idx])) # Valor real en datos originales
 
     #Parametros
+    espacio_por_auto = 260 # pies² por auto adicional
     M_sqr_feet = 1e6  # gran número para restricciones tipo "if"
     cocina_promedio = 161 
     baño_promedio = 45 # 70% de 65
@@ -120,7 +155,7 @@ def optimize_house(
         "Garage_Cond":          M_grande,  # mejorar condición del garage
         "Kitchen_Qual":         M_grande,  # subir un nivel (TA→Gd→Ex)
         "Kitchen_AbvGr":        M_grande,  # categórica (no accionable directamente)
-        "Fireplaces":           M_grande,  # agregar chimenea   
+        "Fireplaces":           M_grande,
         "Year_Remod_Add":       M_grande,  # remodelar o actualizar hasta 3 "años equivalentes"
         "Sale_Condition_Normal": 0,  # no se modifica
         "Longitude":            0,  # ubicación fija
@@ -257,8 +292,8 @@ def optimize_house(
     # 9. El numero de baños half bath no puede ser mayor a baños completos
     m.addConstr(x["Half_Bath"] <= x["Full_Bath"] , name="HalfBath_limit")
 
-    # 10. El numero de fireplaces no puede ser mayor a 2
-    m.addConstr(x["Fireplaces"] <=2 , name="Fireplaces_limit")
+    # 10. El numero de fireplaces no puede superar el número de habitaciones
+    m.addConstr(x["Fireplaces"] <= x["Full_Bath"] + x["Half_Bath"], name="Fireplaces_limit")
 
     # 11. EL año de remodelación es igual a el año actual
     m.addConstr(x["Year_Remod_Add"] == 2025 , name="Remodeling_year_limit")
@@ -332,6 +367,7 @@ def optimize_house(
 
     # 23. La calidad general de la casa no puede ser mayor que la calidad exterior
     m.addConstr( x["Overall_Cond"] <= x["Exter_Qual"] * (9/4), name="Overall_Cond_limit")
+
 
 
 
