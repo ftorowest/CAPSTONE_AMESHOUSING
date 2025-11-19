@@ -2,8 +2,16 @@ import gurobipy as gp
 from gurobi_ml import add_predictor_constr  
 from gurobipy import GRB
 import numpy as np
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+
 import pandas as pd
-from src.check_feasible_houses import check_house_feasibility
+try:
+    # When src is imported as a package (from src.optimization import ...)
+    from .check_feasible_houses import check_house_feasibility
+except Exception:
+    # Fallback for running the module directly (python src/optimization.py)
+    from check_feasible_houses import check_house_feasibility
 
 def optimize_house(
     model,
@@ -12,7 +20,8 @@ def optimize_house(
     trained_feats,
     trained_stats,
     baseline_idx=0,
-    budget = 200000,
+    baseline_prueba=None,
+    budget=200000,
     pwl_k=25,
 ):
     """
@@ -42,15 +51,18 @@ def optimize_house(
     n = len(X)
     idx = baseline_idx if 0 <= baseline_idx < n else 0
     baseline = X.iloc[idx].astype(float)
+
+    baseline = pd.Series(baseline_prueba) if baseline_prueba is not None else baseline
+
     
     # Verificar factibilidad de la casa baseline
-    is_feasible, violations = check_house_feasibility(baseline)
-    if not is_feasible:
-        violated_constraints = [k for k, v in violations.items() if v]
-        print(f"\nERROR: La casa {idx} NO es factible para optimización")
-        print(f"Restricciones violadas: {', '.join(violated_constraints)}")
-        print("Seleccione una casa factible para continuar.")
-        return None, None, None, None
+    #is_feasible, violations = check_house_feasibility(baseline)
+    #if not is_feasible:
+        #violated_constraints = [k for k, v in violations.items() if v]
+        #print(f"\nERROR: La casa {idx} NO es factible para optimización")
+        #print(f"Restricciones violadas: {', '.join(violated_constraints)}")
+        #print("Seleccione una casa factible para continuar.")
+        #return None, None, None, None
 
     # Predicciones iniciales (en log y en valor real)
     pred_log = float(model.predict(baseline.to_frame().T)[0])
@@ -385,7 +397,6 @@ def optimize_house(
 
         print("Cambios sugeridos:")
         print("-" * 70)
-        print(f"{'Variable':25s} {'Δ Valor':>10s} {'Costo unitario':>15s} {'Costo total':>15s}")
         print("-" * 70)
 
         cost_breakdown = {}
@@ -468,11 +479,40 @@ def optimize_house(
             "roi": roi,
             "changes": deltas,
             "cost_breakdown": cost_breakdown,
-            "final_house": df_final_house
+            "final_house": df_final_house.to_dict(orient="records")
         }
 
         
     else:
-        print("No se encontró solución factible.")
-        return None
+        result_info = {
+            "status": "infeasible",
+            "violated_constraints": [],
+            "active_constraints": [],
+            "involved_variables": [],
+            "message": "No se encontró solución factible."
+        }
+
+        try:
+            # Calcular IIS (conjunto mínimo de restricciones conflictivas)
+            m.computeIIS()
+            result_info["violated_constraints"] = [
+                c.ConstrName for c in m.getConstrs() if c.IISConstr
+            ]
+            result_info["involved_variables"] = [
+                v.VarName for v in m.getVars() if v.IISLB or v.IISUB
+            ]
+        except Exception as e:
+            result_info["message"] += f" (Error al detectar restricciones conflictivas: {str(e)})"
+
+        # Restricciones con slack ≈ 0 (activas o casi violadas)
+        try:
+            result_info["active_constraints"] = [
+                {"name": c.ConstrName, "slack": c.Slack}
+                for c in m.getConstrs() if abs(c.Slack) < 1e-6
+            ]
+        except Exception:
+            pass
+
+        return result_info
+
 

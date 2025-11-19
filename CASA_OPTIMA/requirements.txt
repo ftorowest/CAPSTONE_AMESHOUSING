@@ -22,6 +22,8 @@ shap>=0.44.0
 # --- Infraestructura / ejecución ---
 tqdm>=4.66.0
 python-dotenv>=1.0.0
+fastapi>=0.95.0
+uvicorn>=0.22.0
 
 # --- (Opcional) Visualización interactiva o notebooks ---
 jupyterlab>=4.1.0

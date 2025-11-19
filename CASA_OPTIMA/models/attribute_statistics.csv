@@ -1,5 +1,4 @@
 attribute,modifications,avg_change,avg_cost,total_cost,pct_modified
-Year_Remod_Add,80,32.0,0.0,0.0,100.0
 Exter_Qual,75,1.5066666666666666,678.0,50850.0,93.75
 Garage_Area,72,193.26388888888889,13528.472222222223,974050.0,90.0
 Wood_Deck_SF,70,138.68571428571428,1386.857142857143,97080.0,87.5

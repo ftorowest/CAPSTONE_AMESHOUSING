@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Casa Óptima</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>🏠 Casa Óptima</h1>
+
+  <form id="optimizeForm">
+    <fieldset>
+      <legend>Configuración general</legend>
+      <div class="row">
+        <label>
+          Presupuesto ($):
+          <input type="number" id="budget" value="50000" />
+          
+        </label>
+
+        <!-- 🔽 Nuevo: selector de modelo -->
+        <label>
+          Modelo predictivo:
+          <select id="modelSelector">
+            <option value="xgboost" selected>XGBoost</option>
+            <option value="linear">Regresión Lineal</option>
+          </select>
+        </label>
+
+
+        <label class="precision-label">
+          Precisión del modelo:
+          <input type="range" id="pwl_k" min="5" max="40" value="25" step="5" />
+          <span id="pwl_label">25</span>
+        </label>
+      </div>
+      <p class="hint">
+        Mayor precisión → predicción más exacta pero más lenta (usa entre 10–30).
+      </p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Características de la vivienda base</legend>
+
+      <div class="grid">
+        <label>Superficie primer piso (First_Flr_SF)
+          <input type="number" id="First_Flr_SF" value="1656" />
+        </label>
+
+        <label>Superficie segundo piso (Second_Flr_SF)
+          <input type="number" id="Second_Flr_SF" value="0" />
+        </label>
+
+        <label>Año de construcción (Year_Built)
+          <input type="number" id="Year_Built" value="1960" />
+        </label>
+
+        <label>Área del terreno (Lot_Area)
+          <input type="number" id="Lot_Area" value="31770" />
+        </label>
+
+        <label>Año de remodelación (Year_Remod_Add)
+          <input type="number" id="Year_Remod_Add" value="1960" />
+        </label>
+
+        <label>Área del garaje (Garage_Area)
+          <input type="number" id="Garage_Area" value="528" />
+        </label>
+
+        <label>Superficie sótano total (Total_Bsmt_SF)
+          <input type="number" id="Total_Bsmt_SF" value="1080" />
+        </label>
+
+        <label>Área terraza madera (Wood_Deck_SF)
+          <input type="number" id="Wood_Deck_SF" value="210" />
+        </label>
+
+        <label>Área porche abierto (Open_Porch_SF)
+          <input type="number" id="Open_Porch_SF" value="62" />
+        </label>
+
+        <label>N° de chimeneas (Fireplaces)
+          <input type="number" id="Fireplaces" value="2" />
+        </label>
+
+        <label>Baños completos (Full_Bath)
+          <input type="number" id="Full_Bath" value="1" />
+        </label>
+
+        <label>Medios baños (Half_Bath)
+          <input type="number" id="Half_Bath" value="0" />
+        </label>
+
+        <label>Baño en sótano (Bsmt_Full_Bath)
+          <input type="number" id="Bsmt_Full_Bath" value="1" />
+        </label>
+
+        <label>Habitaciones totales (TotRms_AbvGrd)
+          <input type="number" id="TotRms_AbvGrd" value="7" />
+        </label>
+
+        <label>Dormitorios (Bedroom_AbvGr)
+          <input type="number" id="Bedroom_AbvGr" value="3" />
+        </label>
+
+        <label>Cocinas sobre suelo (Kitchen_AbvGr)
+          <input type="number" id="Kitchen_AbvGr" value="1" />
+        </label>
+
+        <label>Área piscina (Pool_Area)
+          <input type="number" id="Pool_Area" value="0" />
+        </label>
+
+        <label>Latitud (Latitude)
+          <input type="number" id="Latitude" step="0.0001" value="42.054" />
+        </label>
+
+        <label>Longitud (Longitude)
+          <input type="number" id="Longitude" step="0.0001" value="-93.6197" />
+        </label>
+      </div>
+
+      <h4>Escalas de calidad (1 a 5)</h4>
+      <div class="sliders">
+        <div><label>Calidad exterior (Exter_Qual): <span id="v_Exter_Qual">3</span></label>
+          <input type="range" id="Exter_Qual" min="1" max="5" value="3" />
+        </div>
+
+        <div><label>Calidad cocina (Kitchen_Qual): <span id="v_Kitchen_Qual">3</span></label>
+          <input type="range" id="Kitchen_Qual" min="1" max="5" value="3" />
+        </div>
+
+        <div><label>Calidad del sótano (Bsmt_Qual): <span id="v_Bsmt_Qual">4</span></label>
+          <input type="range" id="Bsmt_Qual" min="1" max="5" value="4" />
+        </div>
+
+        <div><label>Exposición del sótano (Bsmt_Exposure): <span id="v_Bsmt_Exposure">5</span></label>
+          <input type="range" id="Bsmt_Exposure" min="1" max="5" value="5" />
+        </div>
+
+        <div><label>Condición general (Overall_Cond): <span id="v_Overall_Cond">5</span></label>
+          <input type="range" id="Overall_Cond" min="1" max="9" value="5" />
+        </div>
+
+        <div><label>Calidad calefacción (Heating_QC): <span id="v_Heating_QC">2</span></label>
+          <input type="range" id="Heating_QC" min="1" max="5" value="2" />
+        </div>
+
+        <div><label>Condición garaje (Garage_Cond): <span id="v_Garage_Cond">4</span></label>
+          <input type="range" id="Garage_Cond" min="1" max="5" value="4" />
+        </div>
+
+        <div><label>Terminación garaje (Garage_Finish): <span id="v_Garage_Finish">4</span></label>
+          <input type="range" id="Garage_Finish" min="1" max="5" value="4" />
+        </div>
+
+        <div><label>Calidad garaje (Garage_Qual): <span id="v_Garage_Qual">4</span></label>
+          <input type="range" id="Garage_Qual" min="1" max="5" value="4" />
+        </div>
+      </div>
+
+      <h4>Características binarias</h4>
+      <div class="checkboxes">
+        <label><input type="checkbox" id="House_Style_One_Story" checked /> Casa de un piso (House_Style_One_Story)</label>
+        <label><input type="checkbox" id="Sale_Condition_Normal" checked /> Venta normal (Sale_Condition_Normal)</label>
+        <label><input type="checkbox" id="Sale_Type_New" /> Venta nueva (Sale_Type_New)</label>
+      </div>
+    </fieldset>
+
+    <button type="submit">🚀 Optimizar vivienda</button>
+  </form>
+  <!-- RESULTADOS -->
+  <h2>Resultado</h2>
+
+  <div id="summary" class="summary hidden">
+    <h3>📈 Resumen de optimización</h3>
+    <p><b>Precio antes:</b> <span id="price_before"></span></p>
+    <p><b>Precio después:</b> <span id="price_after"></span></p>
+    <p><b>Gasto total:</b> <span id="spent"></span></p>
+    <p><b>Ganancia:</b> <span id="profit"></span></p>
+    <p><b>ROI:</b> <span id="roi"></span></p>
+  </div>
+
+  <div id="tables" class="hidden">
+    <h3>🔧 Cambios sugeridos</h3>
+    <table id="changesTable">
+      <thead><tr><th>Variable</th><th>Δ Valor</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <h3>💰 Costos estimados</h3>
+    <table id="costTable">
+      <thead><tr><th>Variable</th><th>Costo ($)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <h3>🏡 Casa optimizada</h3>
+    <table id="finalHouseTable">
+      <thead><tr><th>Variable</th><th>Valor final</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- ========================= -->
+  <!-- 🔥 MAPA INTERACTIVO DE AMES -->
+  <!-- ========================= -->
+  <section class="map-section">
+    <h2>🗺️ Heatmap de precios en Ames</h2>
+    <iframe
+      src="mapa_heatmap_clusters_ames.html"
+      width="100%"
+      height="600"
+      loading="lazy"
+      style="
+        border: none;
+        border-radius: 10px;
+        margin-top: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      "
+    ></iframe>
+  </section>
+
+  <pre id="output" class="hidden"></pre>
+
+  <script>
+    const modelSelector = document.getElementById("modelSelector");
+    const precisionLabel = document.querySelector(".precision-label"); // 🔹 solo el contenedor del rango
+
+    // Mostrar/ocultar solo el control de precisión
+    modelSelector.addEventListener("change", () => {
+      if (modelSelector.value === "xgboost") {
+        precisionLabel.style.display = "block";
+      } else {
+        precisionLabel.style.display = "none";
+      }
+    });
+
+    // Actualizar valor visible del slider
+    const pwlRange = document.getElementById("pwl_k");
+    const pwlLabel = document.getElementById("pwl_label");
+    pwlRange.addEventListener("input", () => {
+      pwlLabel.textContent = pwlRange.value;
+    });
+  </script>
+
+
+
+  <script src="script.js"></script>
+</body>
+</html>

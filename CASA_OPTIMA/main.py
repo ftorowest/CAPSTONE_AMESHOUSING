@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from joblib import load
 
+
 from src.preprocessing import load_and_prepare
 from src.train_model import train_models
 from src.interpretability import explain_model
@@ -15,10 +16,10 @@ def main():
     SAVE_DIR = "models"
     MODEL_TO_EXPLAIN = "XGB_Optuna"   # "Linear" o "XGB_Optuna"
     os.makedirs(SAVE_DIR, exist_ok=True)
-
+    X, y = load_and_prepare(DATA_PATH)
     #  Carga y preparacion de datos 
     print("\nCargando y preparando dataset")
-    X, y = load_and_prepare(DATA_PATH)
+
 
     # Entrenamiento (solo si no existen modelos guardados) 
     linear_path = os.path.join(SAVE_DIR, "linear_model.pkl")
@@ -63,6 +64,11 @@ def main():
     else:
         print(f"Resultados SHAP ya existen en '{SAVE_DIR}'.")
     
+
+
+    baseline_prueba = {'First_Flr_SF': 896.0, 'Second_Flr_SF': 0.0, 'Year_Built': 1961.0, 'Exter_Qual': 2.0, 'Total_Bsmt_SF': 882.0, 'Lot_Area': 11622.0, 'Garage_Area': 730.0, 'Kitchen_Qual': 3.0, 'Fireplaces': 0.0, 'Year_Remod_Add': 1961.0, 'Sale_Condition_Normal': 1.0, 'Longitude': -93.619756, 'Full_Bath': 1.0, 'Bsmt_Qual': 4.0, 'Latitude': 42.053014, 'Bsmt_Exposure': 2.0, 'TotRms_AbvGrd': 5.0, 'Half_Bath': 0.0, 'Heating_QC': 3.0, 'Garage_Finish': 2.0, 'Garage_Cond': 4.0, 'Wood_Deck_SF': 140.0, 'Open_Porch_SF': 0.0, 'Bsmt_Full_Bath': 0.0, 'House_Style_One_Story': 1.0, 'Sale_Type_New': 0.0, 'Bedroom_AbvGr': 2.0, 'Garage_Qual': 4.0, 'Kitchen_AbvGr': 1.0, 'Pool_Area': 0.0, 'Overall_Cond': 6.0}
+
+
     # Optimización con Gurobi 
     print("\nOptimizando la Casa Óptima")
     result = optimize_house(
@@ -76,10 +82,10 @@ def main():
             "q95": X.quantile(0.95),
             "max": X.max()
         }),
-        baseline_idx=2895,
-        budget=75000
+        baseline_idx=667,
+        baseline_prueba=baseline_prueba,
+        budget=125000
 )
-    baseline_X = X.iloc[1]
 
 
 
