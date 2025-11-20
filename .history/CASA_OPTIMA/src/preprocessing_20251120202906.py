@@ -21,10 +21,10 @@ def load_and_prepare(path_csv: str):
     "Longitude", "Full_Bath","Bsmt_Qual", "Latitude", "Bsmt_Exposure","TotRms_AbvGrd", "Half_Bath",
     "Heating_QC", "Garage_Finish", "Garage_Cond", "Wood_Deck_SF", "Open_Porch_SF","Bsmt_Full_Bath",
     "House_Style_One_Story", "Sale_Type_New", "Bedroom_AbvGr", "Garage_Qual","Kitchen_AbvGr",
-    "Overall_Cond"]   
+    "Pool_Area", "Overall_Cond"]   
     
     X = df[features].copy()
-
+    
     # Rellenamos valores faltantes
     medians = X.median(numeric_only=True)
     X = X.fillna(medians)

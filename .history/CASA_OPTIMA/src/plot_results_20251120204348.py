@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Configuración
-INPUT_CSV = "results/batch_optimization_results.csv"
+INPUT_CSV = "models/batch_optimization_results.csv"
 OUTPUT_DIR = "results/plots"
 
 print("=" * 70)

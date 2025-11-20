@@ -23,7 +23,6 @@ def optimize_house(
     baseline_prueba=None,
     budget=200000,
     pwl_k=25,
-    zero =False
 ):
     """
     Parámetros
@@ -50,9 +49,6 @@ def optimize_house(
     
     # Selección de la vivienda base
     n = len(X)
-
-    if zero == True:
-        baseline = pd.Series(0, index=X.columns)
     idx = baseline_idx if 0 <= baseline_idx < n else 0
     baseline = X.iloc[idx].astype(float)
 
@@ -86,8 +82,6 @@ def optimize_house(
     cocina_promedio = 161 
     baño_promedio = 45 # 70% de 65
     habitacion_promedio = 120 # 70% de 172
-
-    #costos por unidad de mejora (USD)
     default_costs = {
         "First_Flr_SF":        151,   # costo por pie² en el primer piso
         "Second_Flr_SF":       203,   # segundo piso es más caro estructuralmente
@@ -122,6 +116,8 @@ def optimize_house(
         "Overall_Cond":         0, #no accionable DIRECTAMENTE
     }
     
+   
+
     # "Room to grow": máximos incrementos posibles por variable
     M_grande = 1e6  
     room = {
@@ -158,6 +154,7 @@ def optimize_house(
         "Overall_Cond":         M_grande
     }
 
+
     # Construcción de límites y costos 
     bounds= {} 
     costs = {}
@@ -165,6 +162,7 @@ def optimize_house(
     ignore_max = {"Year_Built", "Year_Remod_Add", "Longitude", "Latitude"}
     # Máximo valor que puede tomar es el maximo de la base de datos
     maximo = trained_stats["max"]
+
 
     for f in trained_feats:
         base = float(baseline.get(f, X[f].median()))
@@ -347,6 +345,7 @@ def optimize_house(
     m.addConstr( x["Overall_Cond"] <= x["Exter_Qual"] * (9/4), name="Overall_Cond_limit")
 
 
+
     # Conexión con el modelo predictivo (Gurobi + ML)
 
     x_df = pd.DataFrame([[x[c] for c in trained_feats]], columns=trained_feats)
@@ -358,7 +357,6 @@ def optimize_house(
         input_vars=x_df,     # variables de entrada (features)
         output_vars=y_pred_log  # salida (log-precio)
     )
-
     # Conversión del log-precio a precio real (PWL)
     ymin, ymax = np.percentile(y_log, [1, 99])
     ymin, ymax = float(np.clip(ymin, -1e2, 1e2)), float(np.clip(ymax, -1e2, 1e2))

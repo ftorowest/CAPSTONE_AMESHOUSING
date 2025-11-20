@@ -23,7 +23,7 @@ def optimize_house(
     baseline_prueba=None,
     budget=200000,
     pwl_k=25,
-    zero =False
+    zero
 ):
     """
     Parámetros
@@ -50,9 +50,6 @@ def optimize_house(
     
     # Selección de la vivienda base
     n = len(X)
-
-    if zero == True:
-        baseline = pd.Series(0, index=X.columns)
     idx = baseline_idx if 0 <= baseline_idx < n else 0
     baseline = X.iloc[idx].astype(float)
 

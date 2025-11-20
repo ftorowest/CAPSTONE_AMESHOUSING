@@ -52,7 +52,7 @@ def optimize_house(
     n = len(X)
 
     if zero == True:
-        baseline = pd.Series(0, index=X.columns)
+        baseline
     idx = baseline_idx if 0 <= baseline_idx < n else 0
     baseline = X.iloc[idx].astype(float)
 

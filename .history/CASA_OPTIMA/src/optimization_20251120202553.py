@@ -23,7 +23,6 @@ def optimize_house(
     baseline_prueba=None,
     budget=200000,
     pwl_k=25,
-    zero =False
 ):
     """
     Parámetros
@@ -50,9 +49,6 @@ def optimize_house(
     
     # Selección de la vivienda base
     n = len(X)
-
-    if zero == True:
-        baseline = pd.Series(0, index=X.columns)
     idx = baseline_idx if 0 <= baseline_idx < n else 0
     baseline = X.iloc[idx].astype(float)
 
@@ -347,6 +343,7 @@ def optimize_house(
     m.addConstr( x["Overall_Cond"] <= x["Exter_Qual"] * (9/4), name="Overall_Cond_limit")
 
 
+
     # Conexión con el modelo predictivo (Gurobi + ML)
 
     x_df = pd.DataFrame([[x[c] for c in trained_feats]], columns=trained_feats)
@@ -358,7 +355,6 @@ def optimize_house(
         input_vars=x_df,     # variables de entrada (features)
         output_vars=y_pred_log  # salida (log-precio)
     )
-
     # Conversión del log-precio a precio real (PWL)
     ymin, ymax = np.percentile(y_log, [1, 99])
     ymin, ymax = float(np.clip(ymin, -1e2, 1e2)), float(np.clip(ymax, -1e2, 1e2))

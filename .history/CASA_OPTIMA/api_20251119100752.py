@@ -200,9 +200,6 @@ def optimize(req: OptimizeRequest):
         dt = time.time() - t0
         print(f"[INFO] /optimize tardó {dt:.2f}s")
 
-@app.get("/")
-def root():
-    return {"message": "Casa Óptima API funcionando 🚀"}
 
 
 
