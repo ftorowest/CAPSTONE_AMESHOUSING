@@ -85,9 +85,10 @@ def train_models(X, y, save_dir="models"):
     # Modelo lineal 
     lin_model = Pipeline([
         ("scaler", StandardScaler()),
-        ("poly", PolynomialFeatures(degree=2, include_bias=False)),
+        ("poly", PolynomialFeatures(degree=2, include_bias=False, interaction_only=True)),
         ("est", LinearRegression())
     ])
+    
     metrics_lin = cv_eval(lin_model, X, y)
     lin_model.fit(X, y)
     dump(lin_model, f"{save_dir}/linear_model.pkl")

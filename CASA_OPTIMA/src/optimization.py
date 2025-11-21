@@ -19,11 +19,13 @@ def optimize_house(
     y_log,
     trained_feats,
     trained_stats,
-    baseline_idx=0,
-    baseline_prueba=None,
-    budget=200000,
-    pwl_k=25,
-    zero =False
+    baseline_idx = 0,
+    budget = None,
+    pwl_k = 25,
+    zero = False,
+    LON = None,
+    LAT = None,
+    Lot_Area = None
 ):
     """
     Parámetros
@@ -40,9 +42,15 @@ def optimize_house(
     baseline_idx : int
         Índice de la casa base que se optimizará.
     budget : float
-        Presupuesto máximo para mejoras.
+        Presupuesto máximo.
     pwl_k : int
         Número de segmentos para aproximar exp() (función no lineal).
+    zero : bool
+        Si es True, usa una casa "cero" como baseline
+    LON : float
+        Longitud fija (si zero=True)
+    LAT : float
+        Latitud fija (si zero=True)
     """
 
     print("\nOPTIMIZACIÓN CASA ÓPTIMA")
@@ -52,11 +60,48 @@ def optimize_house(
     n = len(X)
 
     if zero == True:
-        baseline = pd.Series(0, index=X.columns)
-    idx = baseline_idx if 0 <= baseline_idx < n else 0
-    baseline = X.iloc[idx].astype(float)
+        baseline = { "First_Flr_SF": 0,
+                "Second_Flr_SF": 0,
+                "Year_Built": 2025,
+                "Exter_Qual": 0,
+                "Total_Bsmt_SF": 0,
+                "Lot_Area": Lot_Area if Lot_Area is not None else X["Lot_Area"].median(),
+                "Garage_Area": 0,
+                "Kitchen_Qual": 0,
+                "Fireplaces": 0,
+                "Year_Remod_Add": 2025,
+                "Sale_Condition_Normal": 1,   # Normal
+                "Longitude": LON if LON is not None else X["Longitude"].median(),             
+                "Full_Bath": 0,
+                "Bsmt_Qual": 0,
+                "Latitude": LAT if LAT is not None else X["Latitude"].median(),              
+                "Bsmt_Exposure": 0,
+                "TotRms_AbvGrd": 0,
+                "Half_Bath": 0,
+                "Heating_QC": 0,
+                "Garage_Finish": 0,
+                "Garage_Cond": 0,
+                "Wood_Deck_SF": 0,
+                "Open_Porch_SF": 0,
+                "Bsmt_Full_Bath": 0,
+                "House_Style_One_Story": 1,
+                "Sale_Type_New": 1,
+                "Bedroom_AbvGr": 0,
+                "Garage_Qual": 0,
+                "Kitchen_AbvGr": 0,
+                "Overall_Cond": 10,
+                "Central_Air_Y": 0}
+        
+        baseline = pd.DataFrame([baseline])
+        baseline = baseline.astype(float)
+        pred_log = float(model.predict(baseline)[0])
 
-    baseline = pd.Series(baseline_prueba) if baseline_prueba is not None else baseline
+
+
+    else:
+        idx = baseline_idx if 0 <= baseline_idx < n else 0
+        baseline = X.iloc[idx].astype(float)
+        pred_log = float(model.predict(baseline.to_frame().T)[0])
 
     
     # Verificar factibilidad de la casa baseline
@@ -69,25 +114,26 @@ def optimize_house(
         #return None, None, None, None
 
     # Predicciones iniciales (en log y en valor real)
-    pred_log = float(model.predict(baseline.to_frame().T)[0])
     price_pred = float(np.expm1(pred_log))        # Valor estimado (modelo)
-    price_real = float(np.expm1(y_log.iloc[idx])) # Valor real en datos originales
 
-    print(f"\nCasa {idx} seleccionada como baseline")
-    print(f"Precio predicho: {price_pred:,.0f} | Precio real: {price_real:,.0f}")
+    if zero == False:
+        price_real = float(np.expm1(y_log.iloc[idx])) # Valor real en datos originales
 
-    # Definición de costos base y “espacio para mejorar”
-    # Costo unitario aproximado de aumentar cada variable (en USD)
-    # Variables no accionables se le impone un costo 0
-    
+        print(f"\nCasa {idx} seleccionada como baseline")
+        print(f"Precio predicho: {price_pred:,.0f} | Precio real: {price_real:,.0f}")
+
+    else:
+        print(f"\nConstruyendo casa desde cero en las coordenadas ({float(baseline['Longitude']):.6f}, {float(baseline['Latitude']):.6f})")
+        print(f"Presupuesto disponible: ${budget:,.0f}")
 
     #Parametros
-    M_sqr_feet = 1e6  # gran número para restricciones tipo "if"
     cocina_promedio = 161 
     baño_promedio = 45 # 70% de 65
     habitacion_promedio = 120 # 70% de 172
+    M_grande = 1e6 
 
     #costos por unidad de mejora (USD)
+    #variables no accionables directamente tienen costo 0
     default_costs = {
         "First_Flr_SF":        151,   # costo por pie² en el primer piso
         "Second_Flr_SF":       203,   # segundo piso es más caro estructuralmente
@@ -99,12 +145,12 @@ def optimize_house(
         "Garage_Cond":         20,  # mejorar condición del garage  (pie²)
         "Garage_Finish":       20,  # mejorar terminaciones del garage (pie²)
         "Garage_Qual":         25,  #mejorar calidad del garage (pie²)
-        "Kitchen_Qual":        124 * cocina_promedio ,  # mejorar calidad de cocina (por nivel)
+        "Kitchen_Qual":        126 * cocina_promedio ,  # mejorar calidad de cocina (por nivel)
         "Kitchen_AbvGr":        60000,  # construir cocina nueva
         "Fireplaces":          6942,  # agregar chimenea
-        "Year_Remod_Add":          0,   # costo asociado a remodelación reciente
-        "Sale_Condition_Normal": 0,   # categórica (no accionable directamente)
-        "Sale_Type_New":         0,
+        "Year_Remod_Add":          0,   # no accionable (directamente)
+        "Sale_Condition_Normal": 0,   # no accionable
+        "Sale_Type_New":         0,      # no accionable
         "Longitude":              0,  # ubicación fija 
         "Latitude":               0,  # ubicación fija 
         "Full_Bath":          10386,  # agregar baño completo
@@ -115,15 +161,14 @@ def optimize_house(
         "Bedroom_AbvGr":       46000,   # costo por agregar un dormitorio
         "House_Style_One_Story": 0,  # categórica (no accionable directamente)
         "Heating_QC":          2500,  # mejorar calidad del sistema de calefacción (por nivel)
-        "Pool_Area":           1000,  # agregar piscina
         "Bsmt_Full_Bath":      18500,   # costo por agregar un baño en el sotano
         "Open_Porch_SF":       111,     #costo por agregar pie² del pórtico
         "Wood_Deck_SF":           10,   #costo por agregar pie² de la terraza
         "Overall_Cond":         0, #no accionable DIRECTAMENTE
+        "Central_Air_Y":       3900  # instalar aire acondicionado central
     }
     
-    # "Room to grow": máximos incrementos posibles por variable
-    M_grande = 1e6  
+    # "Room to grow": máximos incrementos posibles por variable 
     room = {
         "First_Flr_SF":       M_grande,  # pies² adicionales en primer piso
         "Second_Flr_SF":      M_grande,  # pies² adicionales en segundo piso
@@ -143,58 +188,79 @@ def optimize_house(
         "Full_Bath":            M_grande,
         "Half_Bath":         M_grande,  # agregar medio baño
         "Bsmt_Qual":            M_grande,
-        "Bsmt_Exposure":        0,
+        "Bsmt_Exposure":        0,   # no se modifica
         "Sale_Type_New":        0,  # no se modifica
         "TotRms_AbvGrd":        M_grande,  # agregar una habitación adicional
-        "House_Style_One_Story": 0,  # no se modifica
+        "House_Style_One_Story": M_grande,  
         "Heating_QC":          M_grande,  # mejorar calidad del sistema de calefacción
-        "Pool_Area":            M_grande, 
         "Garage_Finish":        M_grande,
         "Wood_Deck_SF":         M_grande,
         "Open_Porch_SF":        M_grande,
         "Bsmt_Full_Bath":       M_grande,
         "Bedroom_AbvGr":        M_grande,
         "Garage_Qual":          M_grande,
-        "Overall_Cond":         M_grande
+        "Overall_Cond":         M_grande,
+        "Central_Air_Y":        1
     }
 
     # Construcción de límites y costos 
     bounds= {} 
     costs = {}
     #Estas variables no se modifican, no tienen bounds
-    ignore_max = {"Year_Built", "Year_Remod_Add", "Longitude", "Latitude"}
+    ignore_max = {"Year_Built", "Year_Remod_Add", "Longitude", "Latitude", "Lot_Area", 
+                  "Sale_Condition_Normal", "Sale_Type_New", "Bsmt_Exposure"}
     # Máximo valor que puede tomar es el maximo de la base de datos
     maximo = trained_stats["max"]
 
     for f in trained_feats:
         base = float(baseline.get(f, X[f].median()))
 
-        # Upper Bound 
-        ub_room = base + room.get(f, 0)
-        ub_max = float(maximo.get(f, base))
+        # CASA NUEVA: calidad FIJA de cocina en nivel 4 (Buena)
+        if zero and f == "Kitchen_Qual":
+            lb = ub = 4
+            bounds[f] = (lb, ub)
+            costs[f] = 0 # no se paga por calidad en construcción nueva
+            continue
 
-        # Lower Bound
-        lb = base
+        #  Basement/Garage calidad FIJA en nivel 4 (Buena) si existen, 0 si no existen
+        if zero and f in ["Bsmt_Qual", "Garage_Cond", "Garage_Qual"]:
+            lb = 0
+            ub = 4      
+            bounds[f] = (lb, ub)
+            costs[f] = 0  # no se paga por calidad en construcción nueva
+            continue
 
-        if f in ignore_max:
-            # Usa solo room (o base si room=0)
-            ub = max(lb, ub_room)
+
+        # Si es la variable binaria que indica si la casa es de 1 piso,
+        # permitir que pase de 1 → 0 si se construye segundo piso.
+        if f == "House_Style_One_Story":
+            lb = 0
+            ub = 1
+
         else:
-            # Usa el menor entre room y max
-            ub = max(lb, min(ub_room, ub_max))
+            # Lógica normal: las variables NO pueden disminuir
+            lb = base
+            ub_room = base + room.get(f, 0)
+            ub_max = float(maximo.get(f, base))
 
-        #Añade los límites y costos a los diccionarios
+            if f in ignore_max:
+                ub = max(lb, ub_room)
+            else:
+                ub = max(lb, min(ub_room, ub_max))
+
         bounds[f] = (lb, ub)
-        costs[f] = float(default_costs.get(f,0))
+        costs[f] = float(default_costs.get(f, 0))
+
 
     # Creación del modelo de optimización Gurobi
     m = gp.Model("casa_optima_profit")
 
     # Variables que deben ser enteras
     int_like = {"Exter_Qual", "Overall_Cond", "Garage_Cond","Kitchen_Qual", 
-    "Kitchen_AbvGr", "Full_Bath", "Half_Bath", "Fireplaces", "BsmntQual",
-    "Bsmt_Exposure","TotRms_AbvGrd", "Heating_QC", "Year_Built", "Year_Remod_Add", "Bsmt_Qual", "House_Style_One_Story",
-    "Garage_Finish", "Bsmt_Full_Bath", "Bedroom_AbvGr", "Garage_Qual", "Overall_Cond" }
+    "Kitchen_AbvGr", "Full_Bath", "Half_Bath", "Fireplaces", "BsmntQual", "Bsmt_Exposure",
+    "TotRms_AbvGrd", "Heating_QC", "Year_Built", "Year_Remod_Add", "Bsmt_Qual", 
+    "House_Style_One_Story","Garage_Finish", "Bsmt_Full_Bath", "Bedroom_AbvGr", 
+    "Garage_Qual", "Overall_Cond", "Sale_Condition_Normal", "Sale_Type_New", "Central_Air_Y"}
 
     # Variables de decisión 
     x = {}
@@ -252,8 +318,8 @@ def optimize_house(
     m.addConstr(x["Second_Flr_SF"] <= 1.2* x["First_Flr_SF"] , name="SecondFloor_limit")
 
     # 4. Si la casa es de un solo piso, el segundo piso debe ser 0
-    m.addConstr(x["Second_Flr_SF"] <= M_sqr_feet * (1 - baseline["House_Style_One_Story"]),
-                 name="HouseStyle_1Story_limit")
+    m.addConstr(x["Second_Flr_SF"] <= M_grande * (1 - x["House_Style_One_Story"]),
+                 name="one_story_no_second_floor")
 
     # 5. El garage es mas chico que el primer piso
     m.addConstr(x["Garage_Area"]  <= x["First_Flr_SF"], name="Garage_size_limit")
@@ -277,7 +343,7 @@ def optimize_house(
     m.addConstr(x["Year_Remod_Add"] == 2025 , name="Remodeling_year_limit")
 
     # 12. Las ampliaciones en SF deben ser significativas (No de 1 pie²)
-    min_delta = {"First_Flr_SF": 100, "Second_Flr_SF": 100 , "Total_Bsmt_SF": 100, "Pool_Area": 50}
+    min_delta = {"First_Flr_SF": 100, "Second_Flr_SF": 100 , "Total_Bsmt_SF": 100}
 
     ampliaciones = {}
     for v, min_d in min_delta.items():
@@ -308,43 +374,97 @@ def optimize_house(
     # 17. Las cocinas deben tener una calidad asociada distinta de 0
     m.addConstr( x["Kitchen_AbvGr"] <= M_grande * x["Kitchen_Qual"], name = "calidad_cocina")
 
-    # 18. Basement debe tener sus atributos asociados distintos de 0
-    # Variable binaria de existencia de basement
+    # 18. Basement debe tener sus atributos asociados a su existencia
+
+    # Variable binaria: B = 1 si hay basement, 0 si no
     B = m.addVar(vtype=GRB.BINARY, name="Basement_Binary")
-    # Activación 
-    m.addConstr(x["Total_Bsmt_SF"] <= M_grande * B, name="bsmt_activation")
 
-    # 19. Atributos asociados al basement
-    basement_related = ["Bsmt_Qual", "Bsmt_Exposure"]
-    for v in basement_related:
-        # Si no hay basement, atributo = 0
-        m.addConstr(x[v] <= M_grande * B, name=f"{v}_upper_if_basement")
-        # Si hay basement, atributo >= 1
-        m.addConstr(x[v] >= B, name=f"{v}_lower_if_basement")
+    # Área mínima real para considerar basement existente
+    eps_b = 10
 
-    # 20. Baño de basement debe caber en este
-    m.addConstr(x["Total_Bsmt_SF"] * 0.5 >= baño_promedio * x["Bsmt_Full_Bath"], name="bsmt_bath_min_size")
+    # Si B = 1 → Total_Bsmt_SF ≥ 1
+    # Si B = 0 → Total_Bsmt_SF = 0
+    m.addConstr(x["Total_Bsmt_SF"] >= eps_b * B, name="basement_min_area_if_exists")
+    m.addConstr(x["Total_Bsmt_SF"] <= M_grande * B, name="basement_zero_if_not_exists")
 
-    #21. Garage debe tener sus atributos asociados distintos de 0
-    # Variable binaria de existencia de garage
+    # Si la casa es nueva (zero=True), la calidad base del basement es 4
+    if zero:
+        m.addConstr(x["Bsmt_Qual"] == 4 * B, name="BsmtQual_zero_new")
+        m.addConstr(x["Bsmt_Exposure"] == 1 * B, name="BsmtExposure_zero_new")  
+
+    else:
+        basement_related = ["Bsmt_Qual", "Bsmt_Exposure"]
+        for v in basement_related:
+            # Si no hay basement, atributo = 0
+            m.addConstr(x[v] <= M_grande * B, name=f"{v}_upper_if_no_basement")
+            # Si hay basement, atributo ≥ 1 (no puede ser cero)
+            m.addConstr(x[v] >= B, name=f"{v}_lower_if_basement")
+
+
+    # 19. Baño de basement debe caber en este
+    m.addConstr(x["Total_Bsmt_SF"] * 0.75 >= baño_promedio * x["Bsmt_Full_Bath"], name="bsmt_bath_min_size")
+
+
+    # 20. Garage debe tener sus atributos asociados a su existencia
+    # Variable binaria: G = 1 si hay garage, 0 si no
     G = m.addVar(vtype=GRB.BINARY, name="Garage_Binary")
-    # Activación
-    m.addConstr(x["Garage_Area"]  <= M_grande * G, name="g_activation")
 
-    # Atributos asociados al garage
-    garage_related = ["Garage_Finish", "Garage_Cond", "Garage_Qual"]
-    for v in garage_related:
-        # Si no hay garage, atributo = 0
-        m.addConstr(x[v] <= M_grande * G, name=f"{v}_upper_if_garage")
-        # Si hay garage, atributo >= 1
-        m.addConstr(x[v] >= G, name=f"{v}_lower_if_garage")
+    # Área mínima realista para que un garage exista
+    eps_g = 100
+
+    # Si G = 1  → Garage_Area ≥ eps_g
+    # Si G = 0  → Garage_Area = 0
+    m.addConstr(x["Garage_Area"] >= eps_g * G, name="garage_min_area_if_exists")
+    m.addConstr(x["Garage_Area"] <= M_grande * G, name="garage_zero_if_not_exists")
+
+    # Si la casa es nueva (zero=True), la calidad base del garage es "4"
+    if zero:
+        m.addConstr(x["Garage_Cond"]   == 4 * G, name="GarageCond_zero_new")
+        m.addConstr(x["Garage_Qual"]   == 4 * G, name="GarageQual_zero_new")
+        m.addConstr(x["Garage_Finish"] == 4 * G, name="GarageFinish_zero_new")
+
+    else:
+        # Atributos asociados al garage
+        garage_related = ["Garage_Finish", "Garage_Cond", "Garage_Qual"]
+        for v in garage_related:
+            # Si no hay garage, atributo = 0
+            m.addConstr(x[v] <= M_grande * G, name=f"{v}_upper_if_garage")
+            # Si hay garage, atributo >= 1
+            m.addConstr(x[v] >= G, name=f"{v}_lower_if_garage")
 
 
-    #22. La casa debe tener almenos 1 dormitorio
+    # 21. La casa debe tener almenos 1 dormitorio
     m.addConstr( 1 <= x["Bedroom_AbvGr"] , name="min_bedroom")
 
-    # 23. La calidad general de la casa no puede ser mayor que la calidad exterior
-    m.addConstr( x["Overall_Cond"] <= x["Exter_Qual"] * (9/4), name="Overall_Cond_limit")
+    # 22. Overall_Cond sube si se mejora la casa
+    # Baseline quality score
+    if zero == False:
+        baseline_quality_avg = (
+            baseline["Exter_Qual"] +
+            baseline["Kitchen_Qual"] +
+            baseline["Bsmt_Qual"] +
+            baseline["Heating_QC"] +
+            baseline["Garage_Cond"] +
+            baseline["Garage_Qual"]) / 6
+        # Variable auxiliar
+        Quality_Score = m.addVar(lb=baseline_quality_avg, ub=9, name="Quality_Score")
+        # Relación del score con las calidades optimizadas
+        m.addConstr(
+            Quality_Score == (
+                x["Exter_Qual"] +
+                x["Kitchen_Qual"] +
+                x["Bsmt_Qual"] +
+                x["Heating_QC"] +
+                x["Garage_Cond"] +
+                x["Garage_Qual"]
+            ) / 6 )
+        # Parámetro de sensibilidad 
+        alpha = 0.5
+        # No disminuir condición
+        m.addConstr(x["Overall_Cond"] >= baseline["Overall_Cond"])
+        # Ajuste lineal: Overall sube si la calidad promedio sube
+        m.addConstr( x["Overall_Cond"] <= baseline["Overall_Cond"] + alpha * (Quality_Score - baseline_quality_avg))
+
 
 
     # Conexión con el modelo predictivo (Gurobi + ML)
@@ -372,8 +492,13 @@ def optimize_house(
     m.addGenConstrPWL(y_pred_log, price, xs, ys, name="log_to_price")
 
     # Precio antes de mejorar (baseline)
-    baseline_vec = pd.DataFrame([baseline[trained_feats].to_dict()], columns=trained_feats)
-    price_before = float(np.expm1(model.predict(baseline_vec))[0])
+    if zero == True:
+        price_before = 0
+    
+    else:
+        baseline_vec = baseline[trained_feats].astype(float)
+        pred_before = model.predict(baseline_vec.values.reshape(1, -1))
+        price_before = float(np.expm1(pred_before)[0])
 
     # Función objetivo: maximizar ganancia neta
     m.setObjective(price - price_before - cost_expr, GRB.MAXIMIZE)

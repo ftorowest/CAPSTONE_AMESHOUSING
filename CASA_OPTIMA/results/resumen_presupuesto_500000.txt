@@ -1,0 +1,321 @@
+RESUMEN PARA PRESUPUESTO $500,000
+================================================================================
+
+UBICACIÓN: (41.988737, -93.619754)
+--------------------------------------------------------------------------------
+  Precio antes       : 0
+  Precio después     : 277,865
+  Gastado            : 254,946
+  Profit             : 22,919
+  ROI                : 0.0899
+  Lot Area           : 10,000
+
+  CAMBIOS REALIZADOS:
+  ----------------------------------------------------------------------
+   First_Flr_SF             : 494.0
+   Year_Built               : 2025.0
+   Exter_Qual               : 3.0
+   Lot_Area                 : 10000.0
+   Garage_Area              : 100.0
+   Kitchen_Qual             : 4.0
+   Fireplaces               : 1.0
+   Year_Remod_Add           : 2025.0
+   Sale_Condition_Normal    : 1.0
+   Longitude                : -93.619754
+   Full_Bath                : 1.0
+   Latitude                 : 41.9887374
+   TotRms_AbvGrd            : 1.0
+   Heating_QC               : 3.0
+   Garage_Finish            : 4.0
+   Garage_Cond              : 4.0
+   Wood_Deck_SF             : 73.0
+   Open_Porch_SF            : 4.0
+   House_Style_One_Story    : 1.0
+   Sale_Type_New            : 1.0
+   Bedroom_AbvGr            : 1.0
+   Garage_Qual              : 4.0
+   Kitchen_AbvGr            : 1.0
+   Overall_Cond             : 10.0
+
+UBICACIÓN: (41.988737, -93.603702)
+--------------------------------------------------------------------------------
+  Precio antes       : 0
+  Precio después     : 277,895
+  Gastado            : 254,946
+  Profit             : 22,949
+  ROI                : 0.0900
+  Lot Area           : 10,000
+
+  CAMBIOS REALIZADOS:
+  ----------------------------------------------------------------------
+   First_Flr_SF             : 494.0
+   Year_Built               : 2025.0
+   Exter_Qual               : 3.0
+   Lot_Area                 : 10000.0
+   Garage_Area              : 100.0
+   Kitchen_Qual             : 4.0
+   Fireplaces               : 1.0
+   Year_Remod_Add           : 2025.0
+   Sale_Condition_Normal    : 1.0
+   Longitude                : -93.603702
+   Full_Bath                : 1.0
+   Latitude                 : 41.9887374
+   TotRms_AbvGrd            : 1.0
+   Heating_QC               : 3.0
+   Garage_Finish            : 4.0
+   Garage_Cond              : 4.0
+   Wood_Deck_SF             : 73.0
+   Open_Porch_SF            : 4.0
+   House_Style_One_Story    : 1.0
+   Sale_Type_New            : 1.0
+   Bedroom_AbvGr            : 1.0
+   Garage_Qual              : 4.0
+   Kitchen_AbvGr            : 1.0
+   Overall_Cond             : 10.0
+
+UBICACIÓN: (41.988737, -93.599996)
+--------------------------------------------------------------------------------
+  Precio antes       : 0
+  Precio después     : 286,483
+  Gastado            : 257,446
+  Profit             : 29,037
+  ROI                : 0.1128
+  Lot Area           : 10,000
+
+  CAMBIOS REALIZADOS:
+  ----------------------------------------------------------------------
+   First_Flr_SF             : 494.0
+   Year_Built               : 2025.0
+   Exter_Qual               : 3.0
+   Lot_Area                 : 10000.0
+   Garage_Area              : 100.0
+   Kitchen_Qual             : 4.0
+   Fireplaces               : 1.0
+   Year_Remod_Add           : 2025.0
+   Sale_Condition_Normal    : 1.0
+   Longitude                : -93.599996
+   Full_Bath                : 1.0
+   Latitude                 : 41.9887374
+   TotRms_AbvGrd            : 1.0
+   Heating_QC               : 4.0
+   Garage_Finish            : 4.0
+   Garage_Cond              : 4.0
+   Wood_Deck_SF             : 73.0
+   Open_Porch_SF            : 4.0
+   House_Style_One_Story    : 1.0
+   Sale_Type_New            : 1.0
+   Bedroom_AbvGr            : 1.0
+   Garage_Qual              : 4.0
+   Kitchen_AbvGr            : 1.0
+   Overall_Cond             : 10.0
+
+UBICACIÓN: (42.027555, -93.619754)
+--------------------------------------------------------------------------------
+  Precio antes       : 0
+  Precio después     : 269,953
+  Gastado            : 248,976
+  Profit             : 20,977
+  ROI                : 0.0843
+  Lot Area           : 10,000
+
+  CAMBIOS REALIZADOS:
+  ----------------------------------------------------------------------
+   First_Flr_SF             : 494.0
+   Year_Built               : 2025.0
+   Exter_Qual               : 3.0
+   Lot_Area                 : 10000.0
+   Garage_Area              : 100.0
+   Kitchen_Qual             : 4.0
+   Fireplaces               : 1.0
+   Year_Remod_Add           : 2025.0
+   Sale_Condition_Normal    : 1.0
+   Longitude                : -93.619754
+   Full_Bath                : 1.0
+   Latitude                 : 42.027555
+   TotRms_AbvGrd            : 1.0
+   Garage_Finish            : 4.0
+   Garage_Cond              : 4.0
+   Wood_Deck_SF             : 226.0
+   Open_Porch_SF            : 4.0
+   House_Style_One_Story    : 1.0
+   Sale_Type_New            : 1.0
+   Bedroom_AbvGr            : 1.0
+   Garage_Qual              : 4.0
+   Kitchen_AbvGr            : 1.0
+   Overall_Cond             : 10.0
+
+UBICACIÓN: (42.027555, -93.603702)
+--------------------------------------------------------------------------------
+  Precio antes       : 0
+  Precio después     : 268,949
+  Gastado            : 248,976
+  Profit             : 19,973
+  ROI                : 0.0802
+  Lot Area           : 10,000
+
+  CAMBIOS REALIZADOS:
+  ----------------------------------------------------------------------
+   First_Flr_SF             : 494.0
+   Year_Built               : 2025.0
+   Exter_Qual               : 3.0
+   Lot_Area                 : 10000.0
+   Garage_Area              : 100.0
+   Kitchen_Qual             : 4.0
+   Fireplaces               : 1.0
+   Year_Remod_Add           : 2025.0
+   Sale_Condition_Normal    : 1.0
+   Longitude                : -93.603702
+   Full_Bath                : 1.0
+   Latitude                 : 42.027555
+   TotRms_AbvGrd            : 1.0
+   Garage_Finish            : 4.0
+   Garage_Cond              : 4.0
+   Wood_Deck_SF             : 226.0
+   Open_Porch_SF            : 4.0
+   House_Style_One_Story    : 1.0
+   Sale_Type_New            : 1.0
+   Bedroom_AbvGr            : 1.0
+   Garage_Qual              : 4.0
+   Kitchen_AbvGr            : 1.0
+   Overall_Cond             : 10.0
+
+UBICACIÓN: (42.027555, -93.599996)
+--------------------------------------------------------------------------------
+  Precio antes       : 0
+  Precio después     : 273,983
+  Gastado            : 248,976
+  Profit             : 25,007
+  ROI                : 0.1004
+  Lot Area           : 10,000
+
+  CAMBIOS REALIZADOS:
+  ----------------------------------------------------------------------
+   First_Flr_SF             : 494.0
+   Year_Built               : 2025.0
+   Exter_Qual               : 3.0
+   Lot_Area                 : 10000.0
+   Garage_Area              : 100.0
+   Kitchen_Qual             : 4.0
+   Fireplaces               : 1.0
+   Year_Remod_Add           : 2025.0
+   Sale_Condition_Normal    : 1.0
+   Longitude                : -93.599996
+   Full_Bath                : 1.0
+   Latitude                 : 42.027555
+   TotRms_AbvGrd            : 1.0
+   Garage_Finish            : 4.0
+   Garage_Cond              : 4.0
+   Wood_Deck_SF             : 226.0
+   Open_Porch_SF            : 4.0
+   House_Style_One_Story    : 1.0
+   Sale_Type_New            : 1.0
+   Bedroom_AbvGr            : 1.0
+   Garage_Qual              : 4.0
+   Kitchen_AbvGr            : 1.0
+   Overall_Cond             : 10.0
+
+UBICACIÓN: (42.050270, -93.619754)
+--------------------------------------------------------------------------------
+  Precio antes       : 0
+  Precio después     : 276,081
+  Gastado            : 249,216
+  Profit             : 26,865
+  ROI                : 0.1078
+  Lot Area           : 10,000
+
+  CAMBIOS REALIZADOS:
+  ----------------------------------------------------------------------
+   First_Flr_SF             : 494.0
+   Year_Built               : 2025.0
+   Exter_Qual               : 3.0
+   Lot_Area                 : 10000.0
+   Garage_Area              : 100.0
+   Kitchen_Qual             : 4.0
+   Fireplaces               : 1.0
+   Year_Remod_Add           : 2025.0
+   Sale_Condition_Normal    : 1.0
+   Longitude                : -93.619754
+   Full_Bath                : 1.0
+   Latitude                 : 42.05027
+   TotRms_AbvGrd            : 1.0
+   Garage_Finish            : 4.0
+   Garage_Cond              : 4.0
+   Wood_Deck_SF             : 250.0
+   Open_Porch_SF            : 4.0
+   House_Style_One_Story    : 1.0
+   Sale_Type_New            : 1.0
+   Bedroom_AbvGr            : 1.0
+   Garage_Qual              : 4.0
+   Kitchen_AbvGr            : 1.0
+   Overall_Cond             : 10.0
+
+UBICACIÓN: (42.050270, -93.603702)
+--------------------------------------------------------------------------------
+  Precio antes       : 0
+  Precio después     : 275,685
+  Gastado            : 248,976
+  Profit             : 26,709
+  ROI                : 0.1073
+  Lot Area           : 10,000
+
+  CAMBIOS REALIZADOS:
+  ----------------------------------------------------------------------
+   First_Flr_SF             : 494.0
+   Year_Built               : 2025.0
+   Exter_Qual               : 3.0
+   Lot_Area                 : 10000.0
+   Garage_Area              : 100.0
+   Kitchen_Qual             : 4.0
+   Fireplaces               : 1.0
+   Year_Remod_Add           : 2025.0
+   Sale_Condition_Normal    : 1.0
+   Longitude                : -93.603702
+   Full_Bath                : 1.0
+   Latitude                 : 42.05027
+   TotRms_AbvGrd            : 1.0
+   Garage_Finish            : 4.0
+   Garage_Cond              : 4.0
+   Wood_Deck_SF             : 226.0
+   Open_Porch_SF            : 4.0
+   House_Style_One_Story    : 1.0
+   Sale_Type_New            : 1.0
+   Bedroom_AbvGr            : 1.0
+   Garage_Qual              : 4.0
+   Kitchen_AbvGr            : 1.0
+   Overall_Cond             : 10.0
+
+UBICACIÓN: (42.050270, -93.599996)
+--------------------------------------------------------------------------------
+  Precio antes       : 0
+  Precio después     : 280,479
+  Gastado            : 248,976
+  Profit             : 31,503
+  ROI                : 0.1265
+  Lot Area           : 10,000
+
+  CAMBIOS REALIZADOS:
+  ----------------------------------------------------------------------
+   First_Flr_SF             : 494.0
+   Year_Built               : 2025.0
+   Exter_Qual               : 3.0
+   Lot_Area                 : 10000.0
+   Garage_Area              : 100.0
+   Kitchen_Qual             : 4.0
+   Fireplaces               : 1.0
+   Year_Remod_Add           : 2025.0
+   Sale_Condition_Normal    : 1.0
+   Longitude                : -93.599996
+   Full_Bath                : 1.0
+   Latitude                 : 42.05027
+   TotRms_AbvGrd            : 1.0
+   Garage_Finish            : 4.0
+   Garage_Cond              : 4.0
+   Wood_Deck_SF             : 226.0
+   Open_Porch_SF            : 4.0
+   House_Style_One_Story    : 1.0
+   Sale_Type_New            : 1.0
+   Bedroom_AbvGr            : 1.0
+   Garage_Qual              : 4.0
+   Kitchen_AbvGr            : 1.0
+   Overall_Cond             : 10.0
+
