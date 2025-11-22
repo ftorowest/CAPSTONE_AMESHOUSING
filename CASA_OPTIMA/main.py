@@ -78,8 +78,8 @@ def main():
             "q95": X.quantile(0.95),
             "max": X.max()
         }),
-        baseline_idx = 667,
-        budget = 600000,
+        baseline_idx = 1876,
+        budget = 500000,
         zero = True
              )
 

@@ -279,36 +279,9 @@ def optimize_house(
             x[c] = m.addVar(lb=float(lb), ub=float(ub), vtype=GRB.CONTINUOUS, name=c)
     
 
-    #Calcular Costos (Menos de Garage y Basement)
-    cost_standard = gp.quicksum( costs[c] * (x[c] - float(baseline[c])) for c in trained_feats
-    if c not in ["Garage_Qual", "Garage_Cond", "Garage_Finish", "Bsmt_Qual"])
-
-    # Calcular Costos Garage
-    area_garage = float(baseline["Garage_Area"])
-
-    c_g_qual = default_costs["Garage_Qual"]
-    cost_g_qual = c_g_qual * area_garage * (x["Garage_Qual"] - float(baseline["Garage_Qual"]))
-
-    c_g_cond = default_costs["Garage_Cond"]
-    cost_g_cond = c_g_cond * area_garage * (x["Garage_Cond"] - float(baseline["Garage_Cond"]))
-
-    c_g_finish = default_costs["Garage_Finish"]
-    cost_g_finish = c_g_finish * area_garage * (x["Garage_Finish"] - float(baseline["Garage_Finish"]))
-
-    #Calcular Costos Basement
-    area_basement = float(baseline["Total_Bsmt_SF"]) 
-
-    c_b_qual = default_costs["Bsmt_Qual"]
-    cost_b_qual = c_b_qual * area_basement * (x["Bsmt_Qual"] - float(baseline["Bsmt_Qual"]))
-
-
+    
     # Restricciones básicas
 
-    # 1. Restricción de presupuesto total
-    cost_expr = (cost_standard + cost_g_qual + cost_g_cond + cost_g_finish + cost_b_qual)
-
-    m.addConstr(cost_expr <= float(budget), name= "Budget")
-    m.addConstr(cost_expr >= 0, name= "Non_negative_cost")  # no gastar "negativo"
 
     # 2. Primer piso mas garage no puede superar el 65% del area del lote (Restricciones Legales)
     m.addConstr(x["First_Flr_SF"] + x["Garage_Area"]  + x["Open_Porch_SF"]
@@ -380,25 +353,41 @@ def optimize_house(
     B = m.addVar(vtype=GRB.BINARY, name="Basement_Binary")
 
     # Área mínima real para considerar basement existente
-    eps_b = 10
-
-    # Si B = 1 → Total_Bsmt_SF ≥ 1
-    # Si B = 0 → Total_Bsmt_SF = 0
+    eps_b = 100
     m.addConstr(x["Total_Bsmt_SF"] >= eps_b * B, name="basement_min_area_if_exists")
     m.addConstr(x["Total_Bsmt_SF"] <= M_grande * B, name="basement_zero_if_not_exists")
 
-    # Si la casa es nueva (zero=True), la calidad base del basement es 4
-    if zero:
-        m.addConstr(x["Bsmt_Qual"] == 4 * B, name="BsmtQual_zero_new")
-        m.addConstr(x["Bsmt_Exposure"] == 1 * B, name="BsmtExposure_zero_new")  
+    # Detectar si la casa originalmente tenía basement
+    had_basement = 1 if float(baseline["Total_Bsmt_SF"]) > 0 else 0
 
+    # Variable que indica si se está construyendo basement nuevo
+    B_new = m.addVar(vtype=GRB.BINARY, name="Basement_New")
+    m.addConstr(B_new >= B - had_basement, name="Basement_new_flag")
+
+    if zero:
+        # Casa nueva → calidad fija
+        m.addConstr(x["Bsmt_Qual"] == 4 * B, name="BsmtQual_zero_new")
+        m.addConstr(x["Bsmt_Exposure"] == 1 * B, name="BsmtExposure_zero_new")
     else:
-        basement_related = ["Bsmt_Qual", "Bsmt_Exposure"]
-        for v in basement_related:
-            # Si no hay basement, atributo = 0
-            m.addConstr(x[v] <= M_grande * B, name=f"{v}_upper_if_no_basement")
-            # Si hay basement, atributo ≥ 1 (no puede ser cero)
-            m.addConstr(x[v] >= B, name=f"{v}_lower_if_basement")
+        # Si basement es nuevo → calidad fija en 4 y no se cobra
+        m.addConstr(
+            x["Bsmt_Qual"] == 4 * B_new + baseline["Bsmt_Qual"] * (1 - B_new),
+            name="BsmtQual_if_new"
+        )
+
+        m.addConstr(
+            x["Bsmt_Exposure"] == 1 * B_new + baseline["Bsmt_Exposure"] * (1 - B_new),
+            name="BsmtExposure_if_new"
+        )
+
+        # Si existía basement antes, permitir mejorar calidad (sí cobra)
+        if had_basement == 1:
+            m.addConstr(x["Bsmt_Qual"] >= baseline["Bsmt_Qual"], name="BsmtQual_can_improve")
+            m.addConstr(x["Bsmt_Exposure"] >= baseline["Bsmt_Exposure"], name="BsmtExposure_can_improve")
+        
+        # Si NO hay basement (B = 0), los atributos deben ser exactamente 0
+        m.addConstr(x["Bsmt_Qual"] == 0 * (1 - B) + x["Bsmt_Qual"] * B, name="BsmtQual_zero_if_no_b")
+
 
 
     # 19. Baño de basement debe caber en este
@@ -406,32 +395,58 @@ def optimize_house(
 
 
     # 20. Garage debe tener sus atributos asociados a su existencia
+
     # Variable binaria: G = 1 si hay garage, 0 si no
     G = m.addVar(vtype=GRB.BINARY, name="Garage_Binary")
 
-    # Área mínima realista para que un garage exista
-    eps_g = 100
-
-    # Si G = 1  → Garage_Area ≥ eps_g
-    # Si G = 0  → Garage_Area = 0
+    # Área mínima realista para considerar un garage existente
+    eps_g = 100  
     m.addConstr(x["Garage_Area"] >= eps_g * G, name="garage_min_area_if_exists")
     m.addConstr(x["Garage_Area"] <= M_grande * G, name="garage_zero_if_not_exists")
 
-    # Si la casa es nueva (zero=True), la calidad base del garage es "4"
+    # Detectar si la casa originalmente tenía garage
+    had_garage = 1 if float(baseline["Garage_Area"]) > 0 else 0
+
+    # Variable que indica si se está construyendo GARAGE NUEVO
+    G_new = m.addVar(vtype=GRB.BINARY, name="Garage_New")
+    m.addConstr(G_new >= G - had_garage, name="Garage_new_flag")
+
     if zero:
+        # CASA NUEVA: calidades fijas en 4
         m.addConstr(x["Garage_Cond"]   == 4 * G, name="GarageCond_zero_new")
         m.addConstr(x["Garage_Qual"]   == 4 * G, name="GarageQual_zero_new")
         m.addConstr(x["Garage_Finish"] == 4 * G, name="GarageFinish_zero_new")
 
     else:
-        # Atributos asociados al garage
-        garage_related = ["Garage_Finish", "Garage_Cond", "Garage_Qual"]
-        for v in garage_related:
-            # Si no hay garage, atributo = 0
-            m.addConstr(x[v] <= M_grande * G, name=f"{v}_upper_if_garage")
-            # Si hay garage, atributo >= 1
-            m.addConstr(x[v] >= G, name=f"{v}_lower_if_garage")
 
+        # Si el garage es NUEVO → calidad fija en 4
+        m.addConstr(
+            x["Garage_Cond"] == 4 * G_new + baseline["Garage_Cond"] * (1 - G_new),
+            name="GarageCond_if_new"
+        )
+
+        m.addConstr(
+            x["Garage_Qual"] == 4 * G_new + baseline["Garage_Qual"] * (1 - G_new),
+            name="GarageQual_if_new"
+        )
+
+        m.addConstr(
+            x["Garage_Finish"] == 4 * G_new + baseline["Garage_Finish"] * (1 - G_new),
+            name="GarageFinish_if_new"
+        )
+
+        # Si existía garage antes → permitir mejorar calidad
+        if had_garage == 1:
+            for v in ["Garage_Cond", "Garage_Qual", "Garage_Finish"]:
+                m.addConstr(
+                    x[v] >= baseline[v],
+                    name=f"{v}_can_improve"
+            )
+
+        # Si NO hay garage (G = 0) → atributos deben ser 0
+        m.addConstr(x["Garage_Cond"]   <= M_grande * G, name="GarageCond_zero_if_no_garage")
+        m.addConstr(x["Garage_Qual"]   <= M_grande * G, name="GarageQual_zero_if_no_garage")
+        m.addConstr(x["Garage_Finish"] <= M_grande * G, name="GarageFinish_zero_if_no_garage")
 
     # 21. La casa debe tener almenos 1 dormitorio
     m.addConstr( 1 <= x["Bedroom_AbvGr"] , name="min_bedroom")
@@ -466,6 +481,31 @@ def optimize_house(
         m.addConstr( x["Overall_Cond"] <= baseline["Overall_Cond"] + alpha * (Quality_Score - baseline_quality_avg))
 
 
+    #Calcular Costos (Menos de Garage y Basement)
+    cost_standard = gp.quicksum( costs[c] * (x[c] - float(baseline[c])) for c in trained_feats
+    if c not in ["Garage_Qual", "Garage_Cond", "Garage_Finish", "Bsmt_Qual"])
+
+    # Calcular Costos Garage
+    area_garage = float(baseline["Garage_Area"])
+
+    c_g_qual   = default_costs["Garage_Qual"]
+    c_g_cond   = default_costs["Garage_Cond"]
+    c_g_finish = default_costs["Garage_Finish"]
+
+    cost_g_qual   = c_g_qual   * area_garage * (x["Garage_Qual"]   - baseline["Garage_Qual"])   * (1 - G_new)
+    cost_g_cond   = c_g_cond   * area_garage * (x["Garage_Cond"]   - baseline["Garage_Cond"])   * (1 - G_new)
+    cost_g_finish = c_g_finish * area_garage * (x["Garage_Finish"] - baseline["Garage_Finish"]) * (1 - G_new)
+
+    #Calcular Costos Basement
+
+    c_b_qual = default_costs["Bsmt_Qual"]
+    cost_b_qual = c_b_qual * float(baseline["Total_Bsmt_SF"]) * (x["Bsmt_Qual"] - float(baseline["Bsmt_Qual"])) * (1 - B_new)
+
+    # 1. Restricción de presupuesto total
+    cost_expr = (cost_standard + cost_g_qual + cost_g_cond + cost_g_finish + cost_b_qual)
+
+    m.addConstr(cost_expr <= float(budget), name= "Budget")
+    m.addConstr(cost_expr >= 0, name= "Non_negative_cost")  # no gastar "negativo"
 
     # Conexión con el modelo predictivo (Gurobi + ML)
 
