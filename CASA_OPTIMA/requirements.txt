@@ -5,16 +5,22 @@
 # --- Núcleo científico y numérico ---
 numpy>=1.24.0
 pandas>=2.0.0
-scikit-learn>=1.4.0
+# Bloqueamos scikit-learn para evitar el error de 'gpu_id' con XGBoost
+scikit-learn<1.4.0
 joblib>=1.3.0
 matplotlib>=3.7.0
 seaborn>=0.12.2
 
 # --- Modelos y optimización ---
-xgboost>=2.0.0
+# Mantenemos XGBoost antiguo por estabilidad con Gurobi-ML
+xgboost<2.0.0
 optuna>=3.6.0
-gurobipy>=11.0.0
-gurobi-ml>=1.4.0
+
+# CRÍTICO: Bloqueamos la v13 porque tu licencia es hasta la v12
+gurobipy>=11.0.0,<13.0.0
+
+# Usamos la versión exacta que te funcionó hoy
+gurobi-machinelearning==1.5.5
 
 # --- Interpretabilidad ---
 shap>=0.44.0
