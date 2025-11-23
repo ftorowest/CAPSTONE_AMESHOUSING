@@ -1,0 +1,46 @@
+
+RESUMEN DE ANÁLISIS DE SENSIBILIDAD V2
+Fecha: 2025-11-22 21:16:54
+
+ANÁLISIS 1: ROI vs Precio Base (Multi-Presupuesto)
+   • Casas analizadas: 30
+   • Presupuestos: 5
+   • Total optimizaciones: 140
+   • Archivo: analysis1_roi_vs_price_multibudget.csv
+
+ANÁLISIS 2: Sensibilidad Presupuesto (Multi-Casa) - CON $500K ADICIONAL
+   • Casas analizadas: 10
+   • Presupuestos por casa: 6 (incluye $500k)
+   • Total optimizaciones: 60
+   • Archivo: analysis2_budget_sensitivity_multihouse.csv
+
+ANÁLISIS 3: Sensibilidad PWL
+   • Valores PWL probados: 7
+   • Total optimizaciones: 7
+   • Archivo: analysis3_pwl_sensitivity.csv
+
+ANÁLISIS 4: Predicción vs Real
+   • Registros de tracking: 207
+   • Error promedio: $11,382.47
+   • Archivo: analysis4_prediction_vs_real.csv
+
+ANÁLISIS 5: XGBoost vs Linear - CON PATRONES ACUMULADOS DE MEJORAS
+   • Casas comparadas: 20
+   • Modelos: 2 (XGBoost, Linear)
+   • Total optimizaciones: 40
+   • Archivos: 
+      - analysis5_xgb_vs_linear.csv (resultados ROI/ganancia)
+      - analysis5_improvement_differences_detailed.csv (todas las diferencias)
+      - analysis5_improvement_patterns.csv (patrones acumulados por atributo)
+
+ARCHIVOS CSV GENERADOS:
+   1. analysis1_roi_vs_price_multibudget.csv
+   2. analysis2_budget_sensitivity_multihouse.csv
+   3. analysis3_pwl_sensitivity.csv
+   4. analysis4_prediction_vs_real.csv
+   5. analysis5_xgb_vs_linear.csv
+   6. analysis5_improvement_differences_detailed.csv (diferencias por casa)
+   7. analysis5_improvement_patterns.csv (PATRONES ACUMULADOS) ← NUEVO
+   8. summary_report.txt (este archivo)
+
+TOTAL DE OPTIMIZACIONES: 247

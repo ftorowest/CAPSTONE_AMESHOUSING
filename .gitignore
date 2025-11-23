@@ -1,0 +1,25 @@
+# Resultados de Análisis de Sensibilidad V1 (antiguo)
+# Estos archivos se generan automáticamente y no deben subirse a Git
+sensitivity_results/
+
+# Logs de entrenamiento y análisis V1
+training_log.txt
+sensitivity_log.txt
+main_training.log
+
+# Virtual environment
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Modelos entrenados (archivos binarios grandes, se regeneran)
+# Mantener en repo solo para referencia, pero marcar como binary en .gitattributes
+# models/*.pkl
+
+# Logs temporales de análisis V2
+CASA_OPTIMA/sensitivity_log_v2.txt
+CASA_OPTIMA/main_training2.log
