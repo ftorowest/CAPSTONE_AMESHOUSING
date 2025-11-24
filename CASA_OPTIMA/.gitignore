@@ -1,0 +1,20 @@
+# --- Lo que ya tienes ---
+venv/
+.venv/
+
+# --- AGREGA ESTO ---
+
+# Ignorar todos los archivos compilados .pyc en cualquier carpeta
+*.pyc
+
+# Ignorar las carpetas de caché completas
+__pycache__/
+
+# Archivos de configuración con CLAVES (¡Seguridad!)
+.env
+
+# Archivos temporales de Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Archivos de sistema (por si alguien de tu equipo usa Mac)
+.DS_Store

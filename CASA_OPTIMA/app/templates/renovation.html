@@ -2,23 +2,27 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Casa Óptima</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Remodelación - Casa Óptima</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <h1>🏠 Casa Óptima</h1>
+  <h1>🔧 Remodelación de Casa Existente</h1>
+  <p style="text-align: center; color: #666; margin-bottom: 2rem;">
+    <a href="/" style="color: #005bbb;">← Volver al selector</a>
+  </p>
 
   <form id="optimizeForm">
     <fieldset>
-      <legend>Configuración general</legend>
+      <legend>Configuración del Proyecto</legend>
+      
       <div class="row">
         <label>
           Presupuesto ($):
-          <input type="number" id="budget" value="50000" />
-          
+          <input type="number" id="budget" value="50000" min="5000" step="1000" required />
         </label>
 
-        <!-- 🔽 Nuevo: selector de modelo -->
         <label>
           Modelo predictivo:
           <select id="modelSelector">
@@ -27,88 +31,88 @@
           </select>
         </label>
 
-
         <label class="precision-label">
           Precisión del modelo:
           <input type="range" id="pwl_k" min="5" max="40" value="25" step="5" />
           <span id="pwl_label">25</span>
         </label>
       </div>
+      
       <p class="hint">
         Mayor precisión → predicción más exacta pero más lenta (usa entre 10–30).
       </p>
     </fieldset>
 
     <fieldset>
-      <legend>Características de la vivienda base</legend>
+      <legend>Características de la Vivienda Base</legend>
 
       <div class="grid">
         <label>Superficie primer piso (First_Flr_SF)
-          <input type="number" id="First_Flr_SF" value="1656" />
+          <input type="number" id="First_Flr_SF" value="1656" min="0" />
         </label>
 
         <label>Superficie segundo piso (Second_Flr_SF)
-          <input type="number" id="Second_Flr_SF" value="0" />
+          <input type="number" id="Second_Flr_SF" value="0" min="0" />
         </label>
 
         <label>Año de construcción (Year_Built)
-          <input type="number" id="Year_Built" value="1960" />
+          <input type="number" id="Year_Built" value="1960" min="1800" max="2025" />
         </label>
 
         <label>Área del terreno (Lot_Area)
-          <input type="number" id="Lot_Area" value="31770" />
+          <input type="number" id="Lot_Area" value="31770" min="1000" />
         </label>
 
         <label>Año de remodelación (Year_Remod_Add)
-          <input type="number" id="Year_Remod_Add" value="1960" />
+          <input type="number" id="Year_Remod_Add" value="1960" min="1800" max="2025" />
         </label>
 
         <label>Área del garaje (Garage_Area)
-          <input type="number" id="Garage_Area" value="528" />
+          <input type="number" id="Garage_Area" value="528" min="0" />
         </label>
 
         <label>Superficie sótano total (Total_Bsmt_SF)
-          <input type="number" id="Total_Bsmt_SF" value="1080" />
+          <input type="number" id="Total_Bsmt_SF" value="1080" min="0" />
         </label>
 
         <label>Área terraza madera (Wood_Deck_SF)
-          <input type="number" id="Wood_Deck_SF" value="210" />
+          <input type="number" id="Wood_Deck_SF" value="210" min="0" />
         </label>
 
         <label>Área porche abierto (Open_Porch_SF)
-          <input type="number" id="Open_Porch_SF" value="62" />
+          <input type="number" id="Open_Porch_SF" value="62" min="0" />
         </label>
 
         <label>N° de chimeneas (Fireplaces)
-          <input type="number" id="Fireplaces" value="2" />
+          <input type="number" id="Fireplaces" value="2" min="0" max="5" />
         </label>
 
         <label>Baños completos (Full_Bath)
-          <input type="number" id="Full_Bath" value="1" />
+          <input type="number" id="Full_Bath" value="1" min="0" max="5" />
         </label>
 
         <label>Medios baños (Half_Bath)
-          <input type="number" id="Half_Bath" value="0" />
+          <input type="number" id="Half_Bath" value="0" min="0" max="3" />
         </label>
 
         <label>Baño en sótano (Bsmt_Full_Bath)
-          <input type="number" id="Bsmt_Full_Bath" value="1" />
+          <input type="number" id="Bsmt_Full_Bath" value="1" min="0" max="3" />
         </label>
 
         <label>Habitaciones totales (TotRms_AbvGrd)
-          <input type="number" id="TotRms_AbvGrd" value="7" />
+          <input type="number" id="TotRms_AbvGrd" value="7" min="0" max="20" />
         </label>
 
         <label>Dormitorios (Bedroom_AbvGr)
-          <input type="number" id="Bedroom_AbvGr" value="3" />
+          <input type="number" id="Bedroom_AbvGr" value="3" min="0" max="10" />
         </label>
 
         <label>Cocinas sobre suelo (Kitchen_AbvGr)
-          <input type="number" id="Kitchen_AbvGr" value="1" />
+          <input type="number" id="Kitchen_AbvGr" value="1" min="0" max="3" />
         </label>
 
         <label>Área piscina (Pool_Area)
-          <input type="number" id="Pool_Area" value="0" />
+          <input type="number" id="Pool_Area" value="0" min="0" />
         </label>
 
         <label>Latitud (Latitude)
@@ -120,7 +124,7 @@
         </label>
       </div>
 
-      <h4>Escalas de calidad (1 a 5)</h4>
+      <h4>Escalas de Calidad (1 a 5)</h4>
       <div class="sliders">
         <div><label>Calidad exterior (Exter_Qual): <span id="v_Exter_Qual">3</span></label>
           <input type="range" id="Exter_Qual" min="1" max="5" value="3" />
@@ -159,21 +163,23 @@
         </div>
       </div>
 
-      <h4>Características binarias</h4>
+      <h4>Características Binarias</h4>
       <div class="checkboxes">
-        <label><input type="checkbox" id="House_Style_One_Story" checked /> Casa de un piso (House_Style_One_Story)</label>
-        <label><input type="checkbox" id="Sale_Condition_Normal" checked /> Venta normal (Sale_Condition_Normal)</label>
-        <label><input type="checkbox" id="Sale_Type_New" /> Venta nueva (Sale_Type_New)</label>
+        <label><input type="checkbox" id="House_Style_One_Story" checked /> Casa de un piso</label>
+        <label><input type="checkbox" id="Sale_Condition_Normal" checked /> Venta normal</label>
+        <label><input type="checkbox" id="Sale_Type_New" /> Venta nueva</label>
+        <label><input type="checkbox" id="Central_Air_Y" checked /> Aire acondicionado central</label>
       </div>
     </fieldset>
 
-    <button type="submit">🚀 Optimizar vivienda</button>
+    <button type="submit">🚀 Optimizar Remodelación</button>
   </form>
+
   <!-- RESULTADOS -->
   <h2>Resultado</h2>
 
   <div id="summary" class="summary hidden">
-    <h3>📈 Resumen de optimización</h3>
+    <h3>📈 Resumen de Optimización</h3>
     <p><b>Precio antes:</b> <span id="price_before"></span></p>
     <p><b>Precio después:</b> <span id="price_after"></span></p>
     <p><b>Gasto total:</b> <span id="spent"></span></p>
@@ -182,69 +188,45 @@
   </div>
 
   <div id="tables" class="hidden">
-    <h3>🔧 Cambios sugeridos</h3>
+    <h3>🔧 Cambios Sugeridos</h3>
     <table id="changesTable">
       <thead><tr><th>Variable</th><th>Δ Valor</th></tr></thead>
       <tbody></tbody>
     </table>
 
-    <h3>💰 Costos estimados</h3>
+    <h3>💰 Desglose de Costos</h3>
     <table id="costTable">
-      <thead><tr><th>Variable</th><th>Costo ($)</th></tr></thead>
+      <thead><tr><th>Concepto</th><th>Costo ($)</th></tr></thead>
       <tbody></tbody>
     </table>
 
-    <h3>🏡 Casa optimizada</h3>
+    <h3>🏡 Casa Optimizada</h3>
     <table id="finalHouseTable">
-      <thead><tr><th>Variable</th><th>Valor final</th></tr></thead>
+      <thead><tr><th>Característica</th><th>Valor Final</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
 
-  <!-- ========================= -->
-  <!-- 🔥 MAPA INTERACTIVO DE AMES -->
-  <!-- ========================= -->
+  <!-- Gráfico de ubicación -->
+  <div style="max-width: 600px; margin: 2rem auto;">
+    <canvas id="locationChart"></canvas>
+  </div>
+
+  <!-- Mapa -->
   <section class="map-section">
-    <h2>🗺️ Heatmap de precios en Ames</h2>
+    <h2>🗺️ Ubicación en Ames, Iowa</h2>
     <iframe
-      src="mapa_heatmap_clusters_ames.html"
+      id="mapIframe"
+      src="/static/mapa_heatmap_clusters_ames.html"
       width="100%"
       height="600"
       loading="lazy"
-      style="
-        border: none;
-        border-radius: 10px;
-        margin-top: 1rem;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-      "
+      style="border: none; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.15);"
     ></iframe>
   </section>
 
   <pre id="output" class="hidden"></pre>
 
-  <script>
-    const modelSelector = document.getElementById("modelSelector");
-    const precisionLabel = document.querySelector(".precision-label"); // 🔹 solo el contenedor del rango
-
-    // Mostrar/ocultar solo el control de precisión
-    modelSelector.addEventListener("change", () => {
-      if (modelSelector.value === "xgboost") {
-        precisionLabel.style.display = "block";
-      } else {
-        precisionLabel.style.display = "none";
-      }
-    });
-
-    // Actualizar valor visible del slider
-    const pwlRange = document.getElementById("pwl_k");
-    const pwlLabel = document.getElementById("pwl_label");
-    pwlRange.addEventListener("input", () => {
-      pwlLabel.textContent = pwlRange.value;
-    });
-  </script>
-
-
-
-  <script src="script.js"></script>
+  <script src="/static/js/renovation.js"></script>
 </body>
 </html>
