@@ -8,26 +8,36 @@ from typing import Dict, Any, List, Optional
 import numpy as np
 import pandas as pd
 from joblib import load
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, conint, confloat
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import sys
+import pathlib
 sys.stdout.reconfigure(encoding='utf-8')
 
-
-
-
+# Agregar el directorio raíz al path para imports
+ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent
+APP_DIR = pathlib.Path(__file__).resolve().parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 from src.preprocessing import load_and_prepare
-from src.optimization import optimize_house
+from optimization import optimize_house
 
 
 # -------- Config & rutas base --------
-DATA_PATH = "data/ames_dum.csv"
-SAVE_DIR  = "models"
+DATA_PATH = ROOT_DIR / "data" / "ames_dum.csv"
+SAVE_DIR  = APP_DIR / "models"
 
 app = FastAPI(title="Casa Óptima API", version="1.0.0")
+
+# Montar archivos estáticos y templates
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 
 app.add_middleware(
@@ -50,19 +60,19 @@ def _ensure_models():
     X, y_log = load_and_prepare(DATA_PATH)
 
     # 1️⃣ XGBoost
-    xgb_path = os.path.join(SAVE_DIR, "xgb_optuna_model.pkl")
-    linear_path = os.path.join(SAVE_DIR, "linear_model.pkl")
-    os.makedirs(SAVE_DIR, exist_ok=True)
+    xgb_path = SAVE_DIR / "xgb_optuna_model.pkl"
+    linear_path = SAVE_DIR / "linear_model.pkl"
+    SAVE_DIR.mkdir(parents=True, exist_ok=True)
 
-    if os.path.exists(xgb_path):
+    if xgb_path.exists():
         print("[API] Modelo XGBoost encontrado.")
-        MODEL = load(xgb_path)
+        MODEL = load(str(xgb_path))
     else:
         raise HTTPException(500, "Modelo XGBoost no encontrado.")
 
-    if os.path.exists(linear_path):
+    if linear_path.exists():
         print("[API] Modelo Lineal encontrado.")
-        LINEAR_MODEL = load(linear_path)
+        LINEAR_MODEL = load(str(linear_path))
     else:
         print("[WARN] Modelo lineal no encontrado. Solo se usará XGBoost.")
 
@@ -100,6 +110,11 @@ class OptimizeRequest(BaseModel):
     budget: float = 200000
     pwl_k: int = 25
     baseline_prueba: Optional[Dict[str, float]] = None
+    zero: bool = False
+    LON: Optional[float] = None
+    LAT: Optional[float] = None
+    Lot_Area: Optional[float] = None
+    land_price: Optional[float] = None
 
 class OptimizeResponse(BaseModel):
     price_before: float
@@ -145,7 +160,12 @@ def optimize(req: OptimizeRequest):
             baseline_idx=req.baseline_idx,
             baseline_prueba=req.baseline_prueba,
             budget=req.budget,
-            pwl_k=pwl_value
+            pwl_k=pwl_value,
+            zero=req.zero,
+            LON=req.LON,
+            LAT=req.LAT,
+            Lot_Area=req.Lot_Area,
+            land_price=req.land_price
         )
 
         # ---------------------------
@@ -191,8 +211,12 @@ def optimize(req: OptimizeRequest):
 
     except Exception as e:
         # 🔹 Si ocurre otro error no esperado, lo informamos como 500
+        import traceback
+        error_traceback = traceback.format_exc()
+        print(f"[ERROR] Exception en /optimize:")
+        print(error_traceback)
         return JSONResponse(
-            content={"status": "error", "message": str(e)},
+            content={"status": "error", "message": str(e), "traceback": error_traceback},
             status_code=500
         )
 
@@ -200,9 +224,22 @@ def optimize(req: OptimizeRequest):
         dt = time.time() - t0
         print(f"[INFO] /optimize tardó {dt:.2f}s")
 
-@app.get("/")
-def root():
-    return {"message": "Casa Óptima API funcionando 🚀"}
+# -------- Rutas de páginas HTML --------
+@app.get("/", response_class=HTMLResponse)
+async def root_page(request: Request):
+    return templates.TemplateResponse("selector.html", {"request": request})
+
+@app.get("/selector", response_class=HTMLResponse)
+async def selector_page(request: Request):
+    return templates.TemplateResponse("selector.html", {"request": request})
+
+@app.get("/new-construction", response_class=HTMLResponse)
+async def new_construction_page(request: Request):
+    return templates.TemplateResponse("new_construction.html", {"request": request})
+
+@app.get("/renovation", response_class=HTMLResponse)
+async def renovation_page(request: Request):
+    return templates.TemplateResponse("renovation.html", {"request": request})
 
 
 

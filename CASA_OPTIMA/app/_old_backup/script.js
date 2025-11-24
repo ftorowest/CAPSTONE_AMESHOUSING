@@ -92,6 +92,18 @@ document
     const model = document.getElementById("modelSelector").value;
     const pwl_k = parseInt(document.getElementById("pwl_k").value);
 
+    // 🏗️ Construcción desde cero
+    const buildFromZero = document.getElementById("buildFromZero").checked;
+    const zero_params = {};
+    if (buildFromZero) {
+      zero_params.zero = true;
+      zero_params.LON = parseFloat(document.getElementById("LON_zero").value);
+      zero_params.LAT = parseFloat(document.getElementById("LAT_zero").value);
+      zero_params.Lot_Area = parseFloat(document.getElementById("Lot_Area_zero").value);
+    } else {
+      zero_params.zero = false;
+    }
+
     const fields = [
       "First_Flr_SF", "Second_Flr_SF", "Year_Built", "Exter_Qual",
       "Total_Bsmt_SF", "Lot_Area", "Garage_Area", "Kitchen_Qual",
@@ -101,6 +113,7 @@ document
       "Garage_Cond", "Wood_Deck_SF", "Open_Porch_SF", "Bsmt_Full_Bath",
       "House_Style_One_Story", "Sale_Type_New", "Bedroom_AbvGr",
       "Garage_Qual", "Kitchen_AbvGr", "Pool_Area", "Overall_Cond",
+      "Central_Air_Y",
     ];
 
     const house_features = {};
@@ -121,6 +134,7 @@ document
       budget,
       pwl_k,
       baseline_prueba: house_features,
+      ...zero_params
     };
 
     const output = document.getElementById("output");
